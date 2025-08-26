@@ -160,7 +160,6 @@ body
 	display flex
 	justify-content center
 	align-items center
-	background white
 
 .Main
 	main-wrapper()

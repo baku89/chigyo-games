@@ -64,7 +64,6 @@ body
 	display flex
 	justify-content center
 	align-items center
-	background white
 
 .GameContainer
 	main-wrapper()

@@ -106,6 +106,9 @@ const currentIndex = computed(() => {
 
 useInterval(1000 / 60, {
 	callback() {
+		if (currentFrame.value === 0) {
+			loadMyKernings()
+		}
 		currentFrame.value =
 			(currentFrame.value + 1) % (fps * (gameDuration + stopDuration))
 	},
@@ -129,16 +132,6 @@ function loadMyKernings() {
 		localStorage.getItem('game__typesetting') ?? 'null'
 	)
 }
-
-loadMyKernings()
-
-window.addEventListener('storage', e => {
-	if (e.key === 'game__typesetting') {
-		// localStorageが他の場所で更新された
-		console.log('my kerning updated')
-		loadMyKernings()
-	}
-})
 
 const myCurrentKernings = computed(() => {
 	return myKernings.value?.[currentIndex.value] ?? null

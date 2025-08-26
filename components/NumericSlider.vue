@@ -7,6 +7,8 @@
 		@pointerleave="hovering = false"
 		@pointerup="onPointerUp"
 		@pointercancel="onPointerUp"
+		@pointerout="onPointerUp"
+		@mouseleave="onPointerUp"
 		ref="$root"
 	>
 		<label class="label">{{ label }}</label>
@@ -106,7 +108,7 @@ watchEffect(() => {
 	font-size calc(max(1rem, 14px))
 
 .slider
-	--input-height 6rem
+	--input-height calc(max(4rem, 48px))
 	--input-border-width 3px
 	display block
 	width 100%
@@ -143,9 +145,10 @@ watchEffect(() => {
 		outline calc( 2 * var(--input-border-width)) solid var(--color-bg)
 		box-shadow none
 
-		transition all 0.2s ease-in-out
+		transition all 0.1s ease-in-out
 
 		.hovering &
+			scale 1.5
 			background-color var(--color-primary)
-			border-color var(--color-primary)
+			border-width 0
 </style>

@@ -1,22 +1,13 @@
 <template>
 	<main class="Typesetting">
 		<div class="characters">
-			<img
-				class="char"
-				:class="{'show-border': showBorders[0]}"
-				src="~/assets/typesetting/0_chi.svg"
-			/>
-			<img
-				class="char"
-				:class="{'show-border': showBorders[1]}"
-				src="~/assets/typesetting/1_gi.svg"
+			<Char src="/typesetting/0_chi.svg" :show-border="showBorders[0]" />
+			<Char
+				src="/typesetting/1_gi.svg"
+				:show-border="showBorders[1]"
 				:style="giStyle"
 			/>
-			<img
-				class="char"
-				:class="{'show-border': showBorders[2]}"
-				src="~/assets/typesetting/2_xyo.svg"
-			/>
+			<Char src="/typesetting/2_xyo.svg" :show-border="showBorders[2]" />
 		</div>
 		<div class="controls">
 			<NumericSlider
@@ -73,48 +64,34 @@ const giStyle = computed(() => {
 </script>
 
 <style lang="stylus">
+@import '../assets/style.styl'
 
 html, body
 	margin 0
 	width 100vw
 	height auto
-	aspect-ratio 1 / 1
 	overflow hidden
 
 
 .Typesetting
 	padding 1rem
 	width 100vw
-	aspect-ratio 1 / 1
+	aspect-ratio 4 / 5
 	display flex
 	flex-direction column
 	justify-content space-around
 	overflow hidden
-	background rgb(173, 173, 173)
 
 .characters
 	display flex
 	justify-content center
 	position relative
 
-.char
-	--char-size 20vw
-	position relative
-	width var(--char-size)
-	aspect-ratio 1 / 1
-	border 2px solid transparent
-	margin -2px
-	transition border-color 0.2s ease-in-out
-	border-radius 0.5rem
-
-	&.show-border
-		border-color var(--color-primary)
-
 .controls
 	width 100%
 	display grid
 	grid-template-columns min-content 1fr
-	gap 1rem
+	gap 2.5rem
 
 	> *
 		grid-column 1 / -1

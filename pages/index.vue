@@ -41,6 +41,6 @@ h1, h2, p
 iframe
 	width 100%
 	height auto
-	aspect-ratio 1 / 1
+	aspect-ratio 4 / 5
 	outline 1px solid white
 </style>

@@ -120,6 +120,7 @@ game.on('reset', () => {
 	background-color var(--color-bg)
 	transition all 0.15s ease-in-out
 	--color var(--color-text)
+	--amp -1rem
 
 	&.warning
 		--color var(--color-primary)
@@ -129,7 +130,7 @@ game.on('reset', () => {
 
 	&.preCountdown
 		--color var(--color-primary)
-		animation bounce 1s infinite alternate
+		animation bounce 1s infinite
 
 
 .time-display
@@ -146,10 +147,10 @@ game.on('reset', () => {
 	transition color 0.15s ease-in-out
 
 	.warning &
-		animation pulse 0.5s infinite alternate
+		animation pulse 0.25s infinite alternate
 
 .practice-mode-text
-	font-size 1.5rem
+	font-size 2rem
 	font-weight bold
 	text-align center
 
@@ -160,6 +161,7 @@ game.on('reset', () => {
 	border 2px solid var(--color-primary)
 	align-self stretch
 	border-radius 0.5rem
+	height 4rem
 	line-height calc(4rem - 4px)
 	padding-inline 1rem
 	animation blink .25s infinite alternate
@@ -181,7 +183,7 @@ game.on('reset', () => {
 	background-color var(--color)
 
 .pre-countdown-text
-	font-size 1.5rem
+	font-size 2rem
 	font-weight bold
 	color var(--color-primary)
 	text-align center
@@ -190,15 +192,29 @@ game.on('reset', () => {
 	0%
 		transform scale(1)
 	100%
-		transform scale(1.5)
+		transform scale(1.15)
 
 @keyframes bounce
-	0%, 20%, 50%, 80%, 100%
+	0%
 		transform translateY(0)
+		animation-timing-function ease-out
+	20%
+		transform translateY(calc(var(--amp)))
+		animation-timing-function ease-in
 	40%
-		transform translateY(-10px)
-	60%
-		transform translateY(-5px)
+		transform translateY(0)
+		animation-timing-function ease-out
+	55%
+		transform translateY(calc(var(--amp) * .5))
+		animation-timing-function ease-in
+	70%
+		transform translateY(0)
+		animation-timing-function ease-out
+	80%
+		transform translateY(calc(var(--amp) * .25))
+		animation-timing-function ease-in
+	90%
+		transform translateY(0)
 
 @keyframes blink
 	0%

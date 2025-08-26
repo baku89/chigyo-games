@@ -3,15 +3,19 @@
 		class="NumericSlider"
 		:class="{hovering: hovering}"
 		@pointerover="hovering = true"
+		@pointerdown="onPointerDown"
 		@pointerleave="hovering = false"
+		@pointerup="onDragEnd"
+		@pointercancel="onDragEnd"
+		ref="$root"
 	>
 		<label class="label">{{ label }}</label>
 		<input
+			ref="$input"
 			class="slider"
 			type="range"
 			:min="min"
 			:max="max"
-			:step="step"
 			:value="modelValue"
 			@input="onInput"
 		/>
@@ -19,18 +23,45 @@
 </template>
 
 <script setup lang="ts">
-const modelValue = defineModel<number>()
+import {useElementSize, useEventListener} from '@vueuse/core'
+import {scalar} from 'linearly'
+
+const modelValue = defineModel<number>({default: 0})
 const hovering = defineModel<boolean>('hovering', {default: false})
 
-defineProps<{
+const props = defineProps<{
 	label: string
 	min: number
 	max: number
-	step: number
 }>()
 
 const onInput = (event: Event) => {
 	modelValue.value = Number((event.target as HTMLInputElement).value)
+}
+
+const $root = ref<HTMLDivElement>()
+const $input = ref<HTMLInputElement>()
+
+const {width: sliderWidth, height: sliderHeight} = useElementSize($input)
+
+let onDragEnd: () => void = () => undefined
+
+function onPointerDown(event: PointerEvent) {
+	const target = event.target as HTMLInputElement
+	target.setPointerCapture(event.pointerId)
+
+	onDragEnd = useEventListener(target, 'pointermove', onPointerDrag)
+}
+
+function onPointerDrag(event: PointerEvent) {
+	const width = sliderWidth.value - sliderHeight.value
+	const delta = (event.movementX / width) * (props.max - props.min)
+
+	modelValue.value = scalar.clamp(
+		modelValue.value + delta,
+		props.min,
+		props.max
+	)
 }
 </script>
 
@@ -56,7 +87,8 @@ const onInput = (event: Event) => {
 	-webkit-appearance none
 	appearance none
 	outline none
-	cursor pointer
+	pointer-events none
+
 
 	&:before
 		position absolute

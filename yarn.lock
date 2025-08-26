@@ -2600,11 +2600,6 @@
     "@whatwg-node/promise-helpers" "^1.2.2"
     tslib "^2.6.3"
 
-"@xstate/vue@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@xstate/vue/-/vue-5.0.0.tgz#fec8c366cd19312caa19fbc33782def5944d664d"
-  integrity sha512-9TyJV4yz5QLJdEU44Ly9LBooEyZmv0nht3qEvDflxXAJmSn1dzaZeESdHFm+ANHtxoUed5jGqH6NT86BusvXQg==
-
 abbrev@^3.0.0:
   version "3.0.1"
   resolved "https://registry.npmjs.org/abbrev/-/abbrev-3.0.1.tgz"
@@ -4034,6 +4029,11 @@ event-target-shim@^5.0.0:
   version "5.0.1"
   resolved "https://registry.npmjs.org/event-target-shim/-/event-target-shim-5.0.1.tgz"
   integrity sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==
+
+eventemitter3@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-5.0.1.tgz#53f5ffd0a492ac800721bb42c66b841de96423c4"
+  integrity sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==
 
 events@^3.3.0:
   version "3.3.0"
@@ -7658,11 +7658,6 @@ xml-name-validator@^4.0.0:
   version "4.0.0"
   resolved "https://registry.npmjs.org/xml-name-validator/-/xml-name-validator-4.0.0.tgz"
   integrity sha512-ICP2e+jsHvAj2E2lIHxa5tjXRlKDJo4IdvPvCXbXQGdzSfmSpNVyIKMvoZHjDY9DP0zV17iI85o90vRFXNccRw==
-
-xstate@^5.20.2:
-  version "5.20.2"
-  resolved "https://registry.yarnpkg.com/xstate/-/xstate-5.20.2.tgz#627249d8aeaf19e045f0cbbdb24815d509fd2130"
-  integrity sha512-GZmLmc+WPKfFRxuTDAxCg0cUhS/ZnWaRD86DO8MKizeK4a050jd5k7UNnIQ2jJDWRig2/r0tmVXeezUNIhoz5Q==
 
 y18n@^5.0.5:
   version "5.0.8"

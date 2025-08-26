@@ -1,9 +1,5 @@
 <template>
-	<GameContainer
-		:game-duration="15"
-		@preCountdown="resetAllValues"
-		@reset="resetAllValues"
-	>
+	<GameContainer :game-duration="15">
 		<template #instruction="{gameDuration}">
 			<div class="instruction">
 				<h1>字詰めゲーム</h1>
@@ -97,7 +93,12 @@ const giStyle = computed(() => {
 	}
 })
 
-const resetAllValues = () => {
+const game = useGameStore()
+
+game.on('startPreCountdown', resetAllValues)
+game.on('reset', resetAllValues)
+
+function resetAllValues() {
 	kernings.value = [0, 0]
 	tracking.value = 0
 }

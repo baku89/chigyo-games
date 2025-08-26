@@ -2,25 +2,27 @@
 	<div
 		class="Countdown"
 		:class="{
-			warning: state === 'main-countdown' && remainingTime <= 3,
-			[state]: true,
+			warning: game.state === 'playing' && remainingTime <= 5,
+			[game.state]: true,
 		}"
 	>
 		<div class="time-display">
 			{{
-				state === 'pre-countdown' ? preCountdownTime : formatTime(remainingTime)
+				game.state === 'preCountdown'
+					? formatTime(preCountdownTime)
+					: formatTime(remainingTime)
 			}}
 		</div>
-		<template v-if="state === 'practice'">
+		<template v-if="game.state === 'practice'">
 			<div class="practice-mode-text">練習モード</div>
 			<button class="start-button" @click="startPreCountdown">
 				本番スタート！
 			</button>
 		</template>
-		<div v-if="state === 'pre-countdown'" class="pre-countdown-text">
+		<div v-if="game.state === 'preCountdown'" class="pre-countdown-text">
 			よーい...
 		</div>
-		<div v-else-if="state === 'main-countdown'" class="progress-bar">
+		<div v-else-if="game.state === 'playing'" class="progress-bar">
 			<div class="progress-fill" :style="{width: `${progressPercentage}%`}" />
 		</div>
 	</div>
@@ -28,17 +30,10 @@
 
 <script setup lang="ts">
 import {useRafFn, type Pausable} from '@vueuse/core'
-
-type State =
-	| 'instruction'
-	| 'practice'
-	| 'pre-countdown'
-	| 'main-countdown'
-	| 'finished'
+import {scalar} from 'linearly'
 
 const props = defineProps<{
-	seconds: number
-	autoStart?: boolean
+	gameDuration: number
 }>()
 
 const emit = defineEmits<{
@@ -47,22 +42,18 @@ const emit = defineEmits<{
 	start: []
 }>()
 
-const remainingTime = ref(props.seconds)
-const state = ref<State>('instruction')
+const game = useGameStore()
+const remainingTime = ref(props.gameDuration)
 const preCountdownTime = ref(3)
 
 let stopRafFn: Pausable | null = null
 
 const progressPercentage = computed(() => {
-	return (1 - (props.seconds - remainingTime.value) / props.seconds) * 100
+	return scalar.fit(remainingTime.value, props.gameDuration, 0, 100, 0)
 })
 
 const formatTime = (time: number): string => {
 	return time.toFixed(0)
-}
-
-const startPractice = () => {
-	state.value = 'practice'
 }
 
 let preCountdownIntervalId: ReturnType<typeof setInterval> | undefined
@@ -71,7 +62,7 @@ const startPreCountdown = () => {
 
 	emit('preCountdown')
 
-	state.value = 'pre-countdown'
+	game.transition('startPreCountdown')
 	preCountdownTime.value = 3
 
 	preCountdownIntervalId = setInterval(() => {
@@ -86,7 +77,7 @@ const startPreCountdown = () => {
 
 const startMainCountdown = () => {
 	emit('start')
-	state.value = 'main-countdown'
+	game.transition('startMainCountdown')
 
 	stopRafFn = useRafFn(({delta}) => {
 		const elapsed = delta / 1000
@@ -94,56 +85,28 @@ const startMainCountdown = () => {
 		remainingTime.value = Math.max(remainingTime.value - elapsed, 0)
 
 		if (remainingTime.value <= 0) {
-			state.value = 'finished'
+			game.transition('finish')
 			stopRafFn?.pause()
 			emit('complete')
 		}
 	})
 }
 
-const startCountdown = () => {
-	startPreCountdown()
-}
-
 const stopCountdown = () => {
 	clearInterval(preCountdownIntervalId)
 	preCountdownIntervalId = undefined
 	stopRafFn?.pause()
-	state.value = 'instruction'
 }
-
-const resetCountdown = () => {
-	stopCountdown()
-	remainingTime.value = props.seconds
-	preCountdownTime.value = 3
-	state.value = 'instruction'
-}
-
-// Auto start if enabled
-onMounted(() => {
-	if (props.autoStart ?? true) {
-		startCountdown()
-	}
-})
 
 // Cleanup on unmount
 onUnmounted(() => {
 	stopCountdown()
 })
 
-// Watch for props changes
-watch(
-	() => props.seconds,
-	newSeconds => {
-		remainingTime.value = newSeconds
-	}
-)
-
-// Expose methods for parent components
-defineExpose({
-	start: startCountdown,
-	startPractice: startPractice,
-	reset: resetCountdown,
+game.on('reset', () => {
+	stopCountdown()
+	remainingTime.value = props.gameDuration
+	preCountdownTime.value = 3
 })
 </script>
 
@@ -164,7 +127,7 @@ defineExpose({
 	&.practice
 		justify-content space-between
 
-	&.pre-countdown
+	&.preCountdown
 		--color var(--color-primary)
 		animation bounce 1s infinite alternate
 
@@ -197,7 +160,7 @@ defineExpose({
 	border 2px solid var(--color-primary)
 	align-self stretch
 	border-radius 0.5rem
-	line-height 4rem
+	line-height calc(4rem - 4px)
 	padding-inline 1rem
 	animation blink .25s infinite alternate
 

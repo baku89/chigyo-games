@@ -7,7 +7,7 @@
 <script setup lang="ts">
 defineProps<{
 	src: string
-	showBorder: boolean
+	showBorder?: boolean
 	style?: Record<string, any>
 }>()
 </script>

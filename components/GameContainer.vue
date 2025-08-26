@@ -2,27 +2,23 @@
 	<div class="GameContainer">
 		<!-- Main Game Screen (Always rendered) -->
 		<div class="game-screen">
-			<Countdown
-				:seconds="gameDuration"
-				@preCountdown="startPreCountdown"
-				@start="startGame"
-				@complete="finishGame"
-				ref="countdown"
-			/>
+			<Countdown :gameDuration="gameDuration" />
 			<div class="game-content">
 				<slot
-					:canEdit="gameState === 'practice' || gameState === 'playing'"
-					:finish="finishGame"
+					:canEdit="game.state === 'practice' || game.state === 'playing'"
 				/>
 			</div>
 		</div>
 
 		<!-- Instruction Overlay -->
-		<div v-if="gameState === 'instruction'" class="instruction-overlay">
+		<div v-if="game.state === 'instruction'" class="instruction-overlay">
 			<div class="instruction-content">
 				<slot name="instruction" :game-duration="gameDuration" />
 				<div class="instruction-actions">
-					<button class="start-practice-button" @click="startPractice">
+					<button
+						class="start-practice-button"
+						@click="game.transition('startPractice')"
+					>
 						練習をはじめる
 					</button>
 				</div>
@@ -30,12 +26,12 @@
 		</div>
 
 		<!-- Result Overlay -->
-		<div v-if="gameState === 'finished'" class="result-overlay">
+		<div v-if="game.state === 'finished'" class="result-overlay">
 			<div class="result-content">
 				<h2>ゲーム終了！</h2>
 				<slot name="result" />
 				<div class="result-actions">
-					<button class="restart-button" @click="restartGame">
+					<button class="restart-button" @click="game.transition('reset')">
 						もう一度プレイ
 					</button>
 				</div>
@@ -46,49 +42,13 @@
 
 <script setup lang="ts">
 import Countdown from './Countdown.vue'
-
-type GameState =
-	| 'instruction'
-	| 'practice'
-	| 'pre-countdown'
-	| 'playing'
-	| 'finished'
+import {useGameStore} from '../stores/game'
 
 defineProps<{
 	gameDuration: number
 }>()
 
-const emit = defineEmits<{
-	preCountdown: []
-	reset: []
-}>()
-
-const gameState = ref<GameState>('instruction')
-const countdown = ref<InstanceType<typeof Countdown>>()
-
-const startPractice = () => {
-	gameState.value = 'practice'
-	countdown.value?.startPractice()
-}
-
-const startPreCountdown = () => {
-	gameState.value = 'pre-countdown'
-	emit('preCountdown')
-}
-
-const startGame = () => {
-	gameState.value = 'playing'
-}
-
-const finishGame = () => {
-	gameState.value = 'finished'
-}
-
-const restartGame = () => {
-	emit('reset')
-	gameState.value = 'instruction'
-	countdown.value?.reset()
-}
+const game = useGameStore()
 </script>
 
 <style lang="stylus">

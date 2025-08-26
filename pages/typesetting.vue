@@ -1,41 +1,43 @@
 <template>
-	<main class="Typesetting">
-		<div class="characters">
-			<Char src="/typesetting/0_chi.svg" :show-border="showBorders[0]" />
-			<Char
-				src="/typesetting/1_gi.svg"
-				:show-border="showBorders[1]"
-				:style="giStyle"
-			/>
-			<Char src="/typesetting/2_xyo.svg" :show-border="showBorders[2]" />
-		</div>
-		<div class="controls">
-			<NumericSlider
-				label="ち〜ぎ"
-				v-model="kernings[0]"
-				:min="-500"
-				:max="500"
-				:step="0.01"
-				v-model:hovering="hoveringKernings[0]"
-			/>
-			<NumericSlider
-				label="ぎ〜ょ"
-				v-model="kernings[1]"
-				:min="-500"
-				:max="500"
-				:step="0.01"
-				v-model:hovering="hoveringKernings[1]"
-			/>
-			<NumericSlider
-				label="Tracking"
-				v-model="tracking"
-				:min="-500"
-				:max="500"
-				:step="0.01"
-				v-model:hovering="hoveringTracking"
-			/>
-		</div>
-	</main>
+	<GameContainer>
+		<main class="Typesetting">
+			<div class="characters">
+				<Char src="/typesetting/0_chi.svg" :show-border="showBorders[0]" />
+				<Char
+					src="/typesetting/1_gi.svg"
+					:show-border="showBorders[1]"
+					:style="giStyle"
+				/>
+				<Char src="/typesetting/2_xyo.svg" :show-border="showBorders[2]" />
+			</div>
+			<div class="controls">
+				<NumericSlider
+					label="Tracking"
+					v-model="tracking"
+					:min="-300"
+					:max="300"
+					:step="0.01"
+					v-model:hovering="hoveringTracking"
+				/>
+				<NumericSlider
+					label="ち〜ぎ"
+					v-model="kernings[0]"
+					:min="-300"
+					:max="300"
+					:step="0.01"
+					v-model:hovering="hoveringKernings[0]"
+				/>
+				<NumericSlider
+					label="ぎ〜ょ"
+					v-model="kernings[1]"
+					:min="-300"
+					:max="300"
+					:step="0.01"
+					v-model:hovering="hoveringKernings[1]"
+				/>
+			</div>
+		</main>
+	</GameContainer>
 </template>
 
 <script setup lang="ts">
@@ -66,26 +68,17 @@ const giStyle = computed(() => {
 <style lang="stylus">
 @import '../assets/style.styl'
 
-html, body
-	margin 0
-	width 100vw
-	height auto
-	overflow hidden
-
-
 .Typesetting
-	padding 1rem
-	width 100vw
-	aspect-ratio 4 / 5
 	display flex
 	flex-direction column
 	justify-content space-around
-	overflow hidden
 
 .characters
 	display flex
 	justify-content center
 	position relative
+	--char-size 15rem
+	height var(--char-size)
 
 .controls
 	width 100%

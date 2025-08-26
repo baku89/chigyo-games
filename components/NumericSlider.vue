@@ -100,7 +100,7 @@ watchEffect(() => {
 .NumericSlider
 	display grid
 	grid-template-columns subgrid
-	gap 1rem
+	gap 0rem
 	align-items center
 
 .label
@@ -111,8 +111,8 @@ watchEffect(() => {
 	--input-height calc(max(4rem, 48px))
 	--input-border-width 3px
 	display block
-	width 100%
 	height var(--input-height)
+	margin-inline calc(var(--input-height) * 0.5)
 	position relative
 	-webkit-appearance none
 	appearance none

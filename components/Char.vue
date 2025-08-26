@@ -15,7 +15,6 @@ defineProps<{
 <style lang="stylus" scoped>
 
 .char
-	--char-size 20vw
 	position relative
 	width var(--char-size)
 	aspect-ratio 1 / 1

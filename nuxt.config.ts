@@ -19,7 +19,7 @@ export default defineNuxtConfig({
 				},
 			],
 		},
-		baseURL: '/gdrb',
+		baseURL: '/chigyo-games',
 		buildAssetsDir: '/_nuxt/',
 	},
 	css: ['~/assets/style.styl'],

@@ -2,7 +2,7 @@
 	<GameContainer :game-duration="15">
 		<template #instruction="{gameDuration}">
 			<div class="instruction">
-				<h1>字詰めゲーム</h1>
+				<h1>文字詰めゲーム</h1>
 				<p>
 					3つのスライダーを調整して<br />
 					「<span class="serif">ちぎょ</span>」という文字を<br />
@@ -60,12 +60,12 @@
 
 		<template #result>
 			<div class="result">
-				<p class="result-text">お疲れ様でした！</p>
+				<p class="result-text">完成！</p>
 				<div class="final-result">
 					<div class="characters">
-						<Char src="/typesetting/0_chi.svg" />
-						<Char src="/typesetting/1_gi.svg" :style="giStyle" />
-						<Char src="/typesetting/2_xyo.svg" />
+						<Char src="../typesetting/0_chi.svg" />
+						<Char src="../typesetting/1_gi.svg" :style="giStyle" />
+						<Char src="../typesetting/2_xyo.svg" />
 					</div>
 				</div>
 			</div>

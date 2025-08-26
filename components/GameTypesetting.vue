@@ -29,24 +29,24 @@
 					<NumericSlider
 						label="Tracking"
 						v-model="tracking"
-						:min="-300"
-						:max="300"
+						:min="-500"
+						:max="500"
 						:step="0.01"
 						v-model:hovering="hoveringTracking"
 					/>
 					<NumericSlider
 						label="ち〜ぎ"
 						v-model="kernings[0]"
-						:min="-300"
-						:max="300"
+						:min="-500"
+						:max="500"
 						:step="0.01"
 						v-model:hovering="hoveringKernings[0]"
 					/>
 					<NumericSlider
 						label="ぎ〜ょ"
 						v-model="kernings[1]"
-						:min="-300"
-						:max="300"
+						:min="-500"
+						:max="500"
 						:step="0.01"
 						v-model:hovering="hoveringKernings[1]"
 					/>
@@ -70,7 +70,12 @@
 </template>
 
 <script setup lang="ts">
-const kernings = ref<[number, number]>([0, 0])
+import type {vec2} from 'linearly'
+import {useGameAPI} from '~/composables/useGameAPI'
+
+type KerningRecord = vec2.Mutable
+
+const kernings = ref<KerningRecord>([0, 0])
 const tracking = ref(0)
 
 const hoveringKernings = ref<[boolean, boolean]>([false, false])
@@ -83,9 +88,16 @@ const showBorders = computed<[boolean, boolean, boolean]>(() => {
 	return [k0 || t, k0 || k1 || t, k1 || t]
 })
 
+const actualKernings = computed<KerningRecord>(() => {
+	return [
+		kernings.value[0] + tracking.value,
+		kernings.value[1] + tracking.value,
+	]
+})
+
 const giStyle = computed(() => {
-	const beforeKerning = (kernings.value[0] + tracking.value) / 1000
-	const afterKerning = (kernings.value[1] + tracking.value) / 1000
+	const beforeKerning = actualKernings.value[0] / 1000
+	const afterKerning = actualKernings.value[1] / 1000
 
 	return {
 		marginLeft: `calc(var(--char-size) * ${beforeKerning})`,
@@ -101,7 +113,40 @@ game.on('reset', resetAllValues)
 function resetAllValues() {
 	kernings.value = [0, 0]
 	tracking.value = 0
+	kerningsRecord.length = 0
 }
+
+// Record the kernings
+const kerningsRecord: KerningRecord[] = []
+
+game.on('tickRecord', frame => {
+	kerningsRecord.push(toRaw(actualKernings.value))
+})
+
+const {submitGameData} = useGameAPI()
+
+game.on('finish', async () => {
+	const hasSaved = !!localStorage.getItem('game__typesetting')
+
+	// Save to localStorage for backup
+	localStorage.setItem('game__typesetting', JSON.stringify(kerningsRecord))
+
+	// Submit to API if not saved
+	if (true) {
+		const payload = {
+			kernings_record: kerningsRecord,
+			final_kernings: actualKernings.value,
+			final_tracking: tracking.value,
+		}
+
+		try {
+			await submitGameData('typesetting', 0, payload)
+			console.log('Game data submitted successfully')
+		} catch (error) {
+			// Error already logged in composable
+		}
+	}
+})
 </script>
 
 <style lang="stylus">

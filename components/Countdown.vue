@@ -29,7 +29,6 @@
 </template>
 
 <script setup lang="ts">
-import {useRafFn, type Pausable} from '@vueuse/core'
 import {scalar} from 'linearly'
 
 const props = defineProps<{
@@ -46,7 +45,7 @@ const game = useGameStore()
 const remainingTime = ref(props.gameDuration)
 const preCountdownTime = ref(3)
 
-let stopRafFn: Pausable | null = null
+let gameIntervalId: ReturnType<typeof setInterval> | undefined
 
 const progressPercentage = computed(() => {
 	return scalar.fit(remainingTime.value, props.gameDuration, 0, 100, 0)
@@ -79,23 +78,36 @@ const startMainCountdown = () => {
 	emit('start')
 	game.transition('startMainCountdown')
 
-	stopRafFn = useRafFn(({delta}) => {
-		const elapsed = delta / 1000
+	const fps = 30
+	const frameInterval = 1000 / fps // ms per frame
+	const totalFrames = props.gameDuration * fps
+	let currentFrame = 0
 
-		remainingTime.value = Math.max(remainingTime.value - elapsed, 0)
+	gameIntervalId = setInterval(() => {
+		// Emit tick record for current frame
+		game.tickRecord(currentFrame)
+		currentFrame++
 
-		if (remainingTime.value <= 0) {
+		// Update remaining time for display
+		const elapsedTime = currentFrame / fps // seconds
+		remainingTime.value = props.gameDuration - elapsedTime
+
+		// Check if game is finished
+		if (currentFrame >= totalFrames) {
+			clearInterval(gameIntervalId)
+			gameIntervalId = undefined
+			remainingTime.value = 0
 			game.transition('finish')
-			stopRafFn?.pause()
 			emit('complete')
 		}
-	})
+	}, frameInterval)
 }
 
 const stopCountdown = () => {
 	clearInterval(preCountdownIntervalId)
 	preCountdownIntervalId = undefined
-	stopRafFn?.pause()
+	clearInterval(gameIntervalId)
+	gameIntervalId = undefined
 }
 
 // Cleanup on unmount

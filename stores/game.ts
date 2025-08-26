@@ -8,11 +8,12 @@ type GameState =
 	| 'finished'
 
 type Events = {
-	startPractice: void
-	startPreCountdown: void
-	startMainCountdown: void
-	finish: void
-	reset: void
+	startPractice: []
+	startPreCountdown: []
+	startMainCountdown: []
+	finish: []
+	reset: []
+	tickRecord: [frame: number]
 }
 
 export const useGameStore = defineStore('game', () => {
@@ -60,7 +61,10 @@ export const useGameStore = defineStore('game', () => {
 		ee.emit(event)
 	}
 
-	function on(event: keyof Events, callback: () => void) {
+	function on<E extends keyof Events>(
+		event: E,
+		callback: (...args: Events[E]) => void
+	) {
 		ee.on(event, callback)
 
 		onBeforeUnmount(() => {
@@ -68,9 +72,14 @@ export const useGameStore = defineStore('game', () => {
 		})
 	}
 
+	function tickRecord(frame: number) {
+		ee.emit('tickRecord', frame)
+	}
+
 	return {
 		state: readonly(state),
 		transition,
 		on,
+		tickRecord,
 	}
 })

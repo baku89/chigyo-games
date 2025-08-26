@@ -37,6 +37,7 @@
 						:max="500"
 						:step="0.01"
 						v-model:hovering="hoveringTracking"
+						@update:model-value="tweakKerning"
 					/>
 					<NumericSlider
 						label="ち〜ぎ"
@@ -45,6 +46,7 @@
 						:max="500"
 						:step="0.01"
 						v-model:hovering="hoveringKernings[0]"
+						@update:model-value="tweakKerning"
 					/>
 					<NumericSlider
 						label="ぎ〜ょ"
@@ -53,6 +55,7 @@
 						:max="500"
 						:step="0.01"
 						v-model:hovering="hoveringKernings[1]"
+						@update:model-value="tweakKerning"
 					/>
 				</div>
 			</main>
@@ -84,6 +87,7 @@ const tracking = ref(0)
 
 const hoveringKernings = ref<[boolean, boolean]>([false, false])
 const hoveringTracking = ref(false)
+const kerningTweaked = ref(false)
 
 const showBorders = computed<[boolean, boolean, boolean]>(() => {
 	const [k0, k1] = hoveringKernings.value
@@ -114,10 +118,15 @@ const game = useGameStore()
 game.on('startPreCountdown', resetAllValues)
 game.on('reset', resetAllValues)
 
+function tweakKerning() {
+	kerningTweaked.value = true
+}
+
 function resetAllValues() {
 	kernings.value = [0, 0]
 	tracking.value = 0
 	kerningsRecord.length = 0
+	kerningTweaked.value = false
 }
 
 // Record the kernings
@@ -130,6 +139,11 @@ game.on('tickRecord', frame => {
 const {submitGameData} = useGameAPI()
 
 game.on('finish', async () => {
+	if (!kerningTweaked.value) {
+		console.log('Not tweaked')
+		return
+	}
+
 	const hasSaved = !!localStorage.getItem('game__typesetting')
 
 	// Save to localStorage for backup

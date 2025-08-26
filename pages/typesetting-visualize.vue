@@ -188,8 +188,8 @@ body
 	stroke-width 2
 	stroke-linecap round
 
-.axis-label
-	font-size 1rem
+text
+	font-size 2rem
 	fill var(--color-text)
 
 .point-cloud

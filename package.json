@@ -12,10 +12,12 @@
 	},
 	"dependencies": {
 		"@types/lodash-es": "^4.17.12",
+		"@xstate/vue": "^5.0.0",
 		"lodash-es": "^4.17.21",
 		"nuxt": "^4.0.0",
 		"stylus": "^0.64.0",
-		"vue": "^3.5.19"
+		"vue": "^3.5.19",
+		"xstate": "^5.20.2"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.31.0",

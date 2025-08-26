@@ -48,8 +48,9 @@
 			<!-- Data -->
 			<path class="point-cloud" :d="pointCloudPath" />
 			<g
+				v-if="myCurrentKernings"
 				class="my-point"
-				:transform="`translate(${myCurrentKernings[0]}, ${-myCurrentKernings[1]!})`"
+				:transform="`translate(${myCurrentKernings[0]}, ${-myCurrentKernings[1]})`"
 			>
 				<circle class="my-point-circle" cx="0" cy="0" r="10" />
 				<text class="my-point-label" x="12" y="0">自分</text>
@@ -120,12 +121,27 @@ const currentKernings = computed(() => {
 })
 
 // 自分自身のデータを取得
-const myKernings = ref<[number, number][]>(
-	JSON.parse(localStorage.getItem('game__typesetting') ?? '[]')
-)
+const myKernings = ref<[number, number][] | null>(null)
+
+function loadMyKernings() {
+	console.log('loadMyKernings')
+	myKernings.value = JSON.parse(
+		localStorage.getItem('game__typesetting') ?? 'null'
+	)
+}
+
+loadMyKernings()
+
+window.addEventListener('storage', e => {
+	if (e.key === 'game__typesetting') {
+		// localStorageが他の場所で更新された
+		console.log('my kerning updated')
+		loadMyKernings()
+	}
+})
 
 const myCurrentKernings = computed(() => {
-	return myKernings.value[currentIndex.value] ?? [0, 0]
+	return myKernings.value?.[currentIndex.value] ?? null
 })
 
 // 点のパスに変更。つまり M 1 2 L 1 2 みたいなの。
@@ -136,8 +152,6 @@ const pointCloudPath = computed(() => {
 		})
 		.join('')
 })
-
-console.log(pointCloudPath.value)
 </script>
 
 <style lang="stylus">

@@ -32,7 +32,7 @@
 				:d="`M ${minValue} ${-minValue} L ${maxValue} ${-maxValue}`"
 			/>
 			<!-- X axis label -->
-			<text :x="minValue + 10" y="30" class="axis-label" text-anchor="start">
+			<text :x="minValue + 10" y="40" class="axis-label" text-anchor="start">
 				ち〜ぎ
 			</text>
 			<!-- Y axis label -->
@@ -75,7 +75,7 @@ interface GameTypesettingRecord {
 	}[]
 }
 
-const res = await getGameRecords<GameTypesettingRecord>('typesetting', 100)
+const res = await getGameRecords<GameTypesettingRecord>('typesetting', 50)
 
 const valueRange = computed<[number, number]>(() => {
 	return res.records.reduce(
@@ -174,12 +174,14 @@ body
 .axis
 	stroke var(--color-text)
 	stroke-width 2
+	vector-effect non-scaling-stroke
 
 .reflection
 	stroke white
 	stroke-dasharray 1 10
 	stroke-width 2
 	stroke-linecap round
+	vector-effect non-scaling-stroke
 
 text
 	font-size 2rem
@@ -190,6 +192,7 @@ text
 	stroke var(--color-primary)
 	stroke-width 10
 	stroke-linecap round
+	vector-effect non-scaling-stroke
 
 .my-point-circle
 	fill var(--color-text)

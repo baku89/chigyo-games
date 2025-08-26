@@ -5,8 +5,8 @@
 		@pointerover="hovering = true"
 		@pointerdown="onPointerDown"
 		@pointerleave="hovering = false"
-		@pointerup="onDragEnd"
-		@pointercancel="onDragEnd"
+		@pointerup="onPointerUp"
+		@pointercancel="onPointerUp"
 		ref="$root"
 	>
 		<label class="label">{{ label }}</label>
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import {useElementSize, useEventListener} from '@vueuse/core'
+import {useElementSize, useEventListener, useScrollLock} from '@vueuse/core'
 import {scalar} from 'linearly'
 
 const modelValue = defineModel<number>({default: 0})
@@ -44,16 +44,38 @@ const $input = ref<HTMLInputElement>()
 
 const {width: sliderWidth, height: sliderHeight} = useElementSize($input)
 
-let onDragEnd: () => void = () => undefined
+let stopWatchDragging: () => void = () => undefined
+let isDragging = ref(false)
 
 function onPointerDown(event: PointerEvent) {
 	const target = event.target as HTMLInputElement
+
 	target.setPointerCapture(event.pointerId)
 
-	onDragEnd = useEventListener(target, 'pointermove', onPointerDrag)
+	isDragging.value = true
+
+	stopWatchDragging = useEventListener(target, 'pointermove', onPointerDrag)
 }
 
+function onPointerUp() {
+	if (!isDragging.value) return
+
+	isDragging.value = false
+
+	stopWatchDragging()
+}
+
+// Cleanup on unmount
+onUnmounted(() => {
+	stopWatchDragging()
+})
+
 function onPointerDrag(event: PointerEvent) {
+	if (!isDragging.value) return
+
+	// Prevent default scrolling behavior
+	event.preventDefault()
+
 	const width = sliderWidth.value - sliderHeight.value
 	const delta = (event.movementX / width) * (props.max - props.min)
 
@@ -63,6 +85,12 @@ function onPointerDrag(event: PointerEvent) {
 		props.max
 	)
 }
+
+const isScrollLocked = useScrollLock(window)
+
+watchEffect(() => {
+	isScrollLocked.value = isDragging.value
+})
 </script>
 
 <style lang="stylus" scoped>

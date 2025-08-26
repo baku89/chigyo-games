@@ -20,6 +20,7 @@ body
 	background var(--color-bg)
 	overflow scroll
 	overflow-x hidden
+	padding-bottom 50vh
 
 main
 	padding 2rem

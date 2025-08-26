@@ -1,5 +1,18 @@
 type GameType = 'typesetting' | 'shower'
 
+// JSONデータの中野数値を指定された精度に丸め込む
+function roundJSON(json: any, precision = 0) {
+	const mul = 10 ** precision
+	return JSON.parse(
+		JSON.stringify(json, (_key, value) => {
+			if (typeof value === 'number') {
+				return Math.round(value * mul) / mul
+			}
+			return value
+		})
+	)
+}
+
 export const useGameAPI = () => {
 	const config = useRuntimeConfig()
 
@@ -20,7 +33,7 @@ export const useGameAPI = () => {
 				body: {
 					game_type: gameType,
 					player_type: playerType,
-					payload: payload,
+					payload: roundJSON(payload),
 				},
 			})
 

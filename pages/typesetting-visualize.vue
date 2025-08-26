@@ -162,6 +162,7 @@ body
 .graph
 	width 100%
 	height 100%
+	overflow visible
 
 .axis
 	stroke var(--color-text)

@@ -21,13 +21,13 @@
 		<template #default="{canEdit}">
 			<main class="GameTypesetting" :class="{invalid: !canEdit}">
 				<div class="characters">
-					<Char src="/typesetting/0_chi.svg" :show-border="showBorders[0]" />
+					<Char src="../typesetting/0_chi.svg" :show-border="showBorders[0]" />
 					<Char
-						src="/typesetting/1_gi.svg"
+						src="../typesetting/1_gi.svg"
 						:show-border="showBorders[1]"
 						:style="giStyle"
 					/>
-					<Char src="/typesetting/2_xyo.svg" :show-border="showBorders[2]" />
+					<Char src="../typesetting/2_xyo.svg" :show-border="showBorders[2]" />
 				</div>
 				<div class="controls">
 					<NumericSlider

@@ -2,24 +2,40 @@
 	<div
 		class="Countdown"
 		:class="{
-			warning: !isPreCountdown && remainingTime <= 10,
-			finished: !isPreCountdown && remainingTime <= 0,
-			'pre-countdown': isPreCountdown,
+			warning: state === 'main-countdown' && remainingTime <= 3,
+			[state]: true,
 		}"
 	>
 		<div class="time-display">
-			{{ isPreCountdown ? preCountdownTime : formatTime(remainingTime) }}
+			{{
+				state === 'pre-countdown' ? preCountdownTime : formatTime(remainingTime)
+			}}
 		</div>
-		<div v-if="!isPreCountdown" class="progress-bar">
+		<template v-if="state === 'practice'">
+			<div class="practice-mode-text">練習モード</div>
+			<button class="start-button" @click="startPreCountdown">
+				本番スタート！
+			</button>
+		</template>
+		<div v-if="state === 'pre-countdown'" class="pre-countdown-text">
+			よーい...
+		</div>
+		<div v-else-if="state === 'main-countdown'" class="progress-bar">
 			<div class="progress-fill" :style="{width: `${progressPercentage}%`}" />
-		</div>
-		<div v-if="isPreCountdown" class="pre-countdown-text">
-			{{ preCountdownTime === 0 ? 'START!' : 'Ready...' }}
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
+import {useRafFn, type Pausable} from '@vueuse/core'
+
+type State =
+	| 'instruction'
+	| 'practice'
+	| 'pre-countdown'
+	| 'main-countdown'
+	| 'finished'
+
 const props = defineProps<{
 	seconds: number
 	autoStart?: boolean
@@ -27,36 +43,42 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	complete: []
+	preCountdown: []
 	start: []
 }>()
 
 const remainingTime = ref(props.seconds)
-const intervalId = ref<number | null>(null)
-const isPreCountdown = ref(false)
+const state = ref<State>('instruction')
 const preCountdownTime = ref(3)
 
+let stopRafFn: Pausable | null = null
+
 const progressPercentage = computed(() => {
-	return ((props.seconds - remainingTime.value) / props.seconds) * 100
+	return (1 - (props.seconds - remainingTime.value) / props.seconds) * 100
 })
 
 const formatTime = (time: number): string => {
-	return time.toString()
+	return time.toFixed(0)
 }
 
-const startPreCountdown = () => {
-	if (intervalId.value) return
+const startPractice = () => {
+	state.value = 'practice'
+}
 
-	isPreCountdown.value = true
+let preCountdownIntervalId: ReturnType<typeof setInterval> | undefined
+const startPreCountdown = () => {
+	if (preCountdownIntervalId !== undefined) return
+
+	emit('preCountdown')
+
+	state.value = 'pre-countdown'
 	preCountdownTime.value = 3
 
-	intervalId.value = window.setInterval(() => {
-		if (preCountdownTime.value > 0) {
-			preCountdownTime.value--
-		} else {
+	preCountdownIntervalId = setInterval(() => {
+		if (--preCountdownTime.value <= 0) {
 			// Pre-countdown finished, start main countdown
-			clearInterval(intervalId.value!)
-			intervalId.value = null
-			isPreCountdown.value = false
+			clearInterval(preCountdownIntervalId)
+			preCountdownIntervalId = undefined
 			startMainCountdown()
 		}
 	}, 1000)
@@ -64,16 +86,19 @@ const startPreCountdown = () => {
 
 const startMainCountdown = () => {
 	emit('start')
+	state.value = 'main-countdown'
 
-	intervalId.value = window.setInterval(() => {
-		if (remainingTime.value > 0) {
-			remainingTime.value--
-		} else {
-			clearInterval(intervalId.value!)
-			intervalId.value = null
+	stopRafFn = useRafFn(({delta}) => {
+		const elapsed = delta / 1000
+
+		remainingTime.value = Math.max(remainingTime.value - elapsed, 0)
+
+		if (remainingTime.value <= 0) {
+			state.value = 'finished'
+			stopRafFn?.pause()
 			emit('complete')
 		}
-	}, 1000)
+	})
 }
 
 const startCountdown = () => {
@@ -81,17 +106,17 @@ const startCountdown = () => {
 }
 
 const stopCountdown = () => {
-	if (intervalId.value) {
-		clearInterval(intervalId.value)
-		intervalId.value = null
-	}
-	isPreCountdown.value = false
+	clearInterval(preCountdownIntervalId)
+	preCountdownIntervalId = undefined
+	stopRafFn?.pause()
+	state.value = 'instruction'
 }
 
 const resetCountdown = () => {
 	stopCountdown()
 	remainingTime.value = props.seconds
 	preCountdownTime.value = 3
+	state.value = 'instruction'
 }
 
 // Auto start if enabled
@@ -117,74 +142,80 @@ watch(
 // Expose methods for parent components
 defineExpose({
 	start: startCountdown,
-	stop: stopCountdown,
+	startPractice: startPractice,
 	reset: resetCountdown,
-	remainingTime: readonly(remainingTime),
 })
 </script>
 
 <style lang="stylus" scoped>
+@import '../assets/style.styl'
 
 .Countdown
 	display flex
-	flex-direction column
 	align-items center
 	gap 1rem
-	padding 1rem
-	border-radius 0.5rem
 	background-color var(--color-bg)
-	border 2px solid var(--color-text)
-	transition all 0.3s ease-in-out
+	transition all 0.15s ease-in-out
+	--color var(--color-text)
 
 	&.warning
-		border-color var(--color-primary)
-		animation pulse 1s infinite
+		--color var(--color-primary)
 
-	&.finished
-		border-color #ff4444
-		background-color rgba(255, 68, 68, 0.1)
+	&.practice
+		justify-content space-between
 
 	&.pre-countdown
-		border-color var(--color-primary)
-		background-color rgba(255, 165, 0, 0.1)
-		animation bounce 1s infinite
+		--color var(--color-primary)
+		animation bounce 1s infinite alternate
+
 
 .time-display
-	font-size 3rem
-	font-weight bold
+	width 4rem
+	height 4rem
+	aspect-ratio 1 / 1
+	line-height 4rem
+	border-radius 50%
+	background-color var(--color)
+	font-size 2rem
 	font-family 'Fira Code', monospace
-	color var(--color-text)
+	color var(--color-bg)
 	text-align center
-	min-width 4ch
-	transition color 0.3s ease-in-out
+	transition color 0.15s ease-in-out
 
 	.warning &
-		color var(--color-primary)
+		animation pulse 0.5s infinite alternate
 
-	.finished &
-		color #ff4444
+.practice-mode-text
+	font-size 1.5rem
+	font-weight bold
+	text-align center
 
-	.pre-countdown &
-		color var(--color-primary)
-		font-size 4rem
+.start-button
+	font-size 1.5rem
+	font-weight bold
+	color var(--color-primary)
+	border 2px solid var(--color-primary)
+	align-self stretch
+	border-radius 0.5rem
+	line-height 4rem
+	padding-inline 1rem
+	animation blink .25s infinite alternate
+
+	&:hover
+		background-color var(--color-primary) !important
+		color var(--color-text) !important
 
 .progress-bar
 	width 100%
-	height 8px
+	height .5rem
 	background-color rgba(0, 0, 0, 0.1)
-	border-radius 4px
+	border-radius 9999px
+	margin-right 1rem
 	overflow hidden
 
 .progress-fill
 	height 100%
-	background-color var(--color-text)
-	transition width 1s linear, background-color 0.3s ease-in-out
-
-	.warning &
-		background-color var(--color-primary)
-
-	.finished &
-		background-color #ff4444
+	background-color var(--color)
 
 .pre-countdown-text
 	font-size 1.5rem
@@ -195,13 +226,8 @@ defineExpose({
 @keyframes pulse
 	0%
 		transform scale(1)
-		opacity 1
-	50%
-		transform scale(1.05)
-		opacity 0.8
 	100%
-		transform scale(1)
-		opacity 1
+		transform scale(1.5)
 
 @keyframes bounce
 	0%, 20%, 50%, 80%, 100%
@@ -210,4 +236,11 @@ defineExpose({
 		transform translateY(-10px)
 	60%
 		transform translateY(-5px)
+
+@keyframes blink
+	0%
+		background-color with-alpha(var(--color-primary), 0.5)
+	100%
+		background-color var(--color-bg)
+		color var(--color-primary)
 </style>

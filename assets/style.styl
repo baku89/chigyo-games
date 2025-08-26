@@ -7,6 +7,7 @@
 	--color-text rgb(0, 0, 51)
 	--color-primary #E2FF00
 	--max-width 960px
+	--input-height calc(max(4rem, 48px))
 
 *, &::before, &::after
 	-webkit-appearance none
@@ -31,9 +32,15 @@
 	color var(--color-bg)
 
 html
+	color var(--color-text)
+	font-family 'Zen Kaku Gothic New', sans-serif
 	font-size calc(min(2vw, var(--max-width) * 0.02))
 
-body
-	font-family sans-serif
-	color var(--color-text)
-	background var(--color-bg)
+with-alpha($color, $alpha)
+	unquote('color-mix(in hsl, ' + $color + ' ' + ($alpha * 100) + '%, transparent)')
+
+strong
+	font-weight bold
+
+button
+	cursor pointer

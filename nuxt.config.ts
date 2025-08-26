@@ -2,9 +2,7 @@ import {defineNuxtConfig} from 'nuxt/config'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-	modules: [
-		'@nuxt/eslint',
-	],
+	modules: ['@nuxt/eslint'],
 	compatibilityDate: '2024-11-01',
 	devtools: {enabled: true},
 	ssr: false,
@@ -17,7 +15,7 @@ export default defineNuxtConfig({
 				{rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: ''},
 				{
 					rel: 'stylesheet',
-					href: 'https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Shippori+Mincho&display=swap',
+					href: 'https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap',
 				},
 			],
 		},
@@ -28,10 +26,9 @@ export default defineNuxtConfig({
 	vite: {
 		css: {
 			preprocessorOptions: {
-				stylus: {
-				}
-			}
-		}
+				stylus: {},
+			},
+		},
 	},
 	typescript: {
 		tsConfig: {

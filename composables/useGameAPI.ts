@@ -48,11 +48,11 @@ export const useGameAPI = () => {
 	/**
 	 * Get game records from API
 	 */
-	async function getGameRecords(
+	async function getGameRecords<T>(
 		gameType: GameType,
 		limit: number,
 		playerType?: number
-	) {
+	): Promise<T> {
 		try {
 			const params = new URLSearchParams({
 				game_type: gameType,
@@ -63,14 +63,14 @@ export const useGameAPI = () => {
 				params.append('player_type', playerType.toString())
 			}
 
-			const response = await $fetch(
-				`${config.public.apiBaseUrl}/records.php?${params}`
+			const response = await $fetch<T>(
+				`${config.public.apiBaseUrl}/records.php?${params}`,
+				{
+					parseResponse: JSON.parse,
+				}
 			)
-
-			console.log('Game records retrieved successfully:', response)
 			return response
 		} catch (error) {
-			console.error('Failed to retrieve game records:', error)
 			throw error
 		}
 	}

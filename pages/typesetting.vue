@@ -139,8 +139,6 @@ game.on('finish', async () => {
 	if (true) {
 		const payload = {
 			kernings_record: kerningsRecord,
-			final_kernings: actualKernings.value,
-			final_tracking: tracking.value,
 		}
 
 		try {

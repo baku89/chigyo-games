@@ -67,12 +67,8 @@ body
 	background white
 
 .GameContainer
-	padding 1rem
-	width calc(min(100vw, var(--max-width)))
+	main-wrapper()
 	aspect-ratio 4 / 5
-	overflow hidden
-	position relative
-	background var(--color-bg)
 
 .game-screen
 	width 100%

@@ -1,0 +1,33 @@
+# Disable the trailing slash
+DirectorySlash Off
+
+RewriteEngine On
+RewriteBase /
+
+# Internally redirect to ./index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}/index.html -f
+RewriteRule ^(.*?)/?$ $1/index.html [L]
+
+# Redirect to /404.html if file or directory does not exist
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ /404.html [L]
+
+# Error handling
+ErrorDocument 404 /404.html
+ErrorDocument 403 /404.html
+
+SetEnvIf Request_URI ".*" Ngx_Cache_NoCacheMode=off
+SetEnvIf Request_URI ".*" Ngx_Cache_StaticMode
+
+# Redirect to HTTPS
+RewriteCond %{HTTPS} !on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+## Redirect to not-www-prefixed URI
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+# MIME Type
+AddType application/wasm .wasm 

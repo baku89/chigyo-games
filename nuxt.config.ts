@@ -1,0 +1,52 @@
+import {defineNuxtConfig} from 'nuxt/config'
+
+// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+	modules: [
+		'@nuxt/eslint',
+	],
+	compatibilityDate: '2024-11-01',
+	devtools: {enabled: true},
+	ssr: false,
+	app: {
+		head: {
+			charset: 'utf-8',
+			viewport: 'width=device-width, initial-scale=1',
+			link: [
+				{rel: 'preconnect', href: 'https://fonts.googleapis.com'},
+				{rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: ''},
+				{
+					rel: 'stylesheet',
+					href: 'https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Shippori+Mincho&display=swap',
+				},
+			],
+		},
+		baseURL: '/',
+		buildAssetsDir: '/_nuxt/',
+	},
+	css: ['~/assets/style.styl'],
+	vite: {
+		css: {
+			preprocessorOptions: {
+				stylus: {
+				}
+			}
+		}
+	},
+	typescript: {
+		tsConfig: {
+			compilerOptions: {
+				types: ['vite-plugin-glsl/ext'],
+			},
+		},
+	},
+	runtimeConfig: {
+		db: {
+			host: process.env.DB_HOST,
+			port: process.env.DB_PORT,
+			user: process.env.DB_USER,
+			password: process.env.DB_PASSWORD,
+			database: process.env.DB_DATABASE,
+		},
+	},
+})

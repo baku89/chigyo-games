@@ -28,7 +28,7 @@
 		<!-- Result Overlay -->
 		<div v-if="game.state === 'finished'" class="result-overlay">
 			<div class="result-content">
-				<h2>ゲーム終了！</h2>
+				<h2>ゲーム終了</h2>
 				<slot name="result" />
 				<div class="result-actions">
 					<button class="restart-button" @click="game.transition('reset')">
@@ -113,6 +113,25 @@ body
 .instruction-content
 	background-color with-alpha(var(--color-bg), .8)
 	backdrop-filter blur(10px)
+
+	line-height 1.6
+	font-size 2rem
+
+	h1
+		font-size 4rem
+		font-weight bold
+		margin-bottom 1rem
+		color var(--color-text)
+
+	.serif
+		font-family serif
+		font-weight bold
+
+	p
+		margin 0.5lh 0
+
+	.small
+		font-size 1rem
 
 .instruction-actions,
 .result-actions

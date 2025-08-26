@@ -1,16 +1,22 @@
 <template>
 	<main>
-		<h1>Graphic Design Review - Interactive Figures</h1>
+		<h1>稚魚ゲー</h1>
 
 		<h2>1. 稚魚シャワー</h2>
 
-		<iframe src="/chigyo-shower" />
+		<iframe class="portrait" src="./shower" />
 
 		<h2>2. 稚魚シャワーの適応度地形</h2>
 
-		<h2>3. 文字詰め空間</h2>
+		<iframe src="./shower-landscape" />
 
-		<iframe src="/typesetting" />
+		<h2>3. 文字詰めゲーム</h2>
+
+		<iframe class="portrait" src="./typesetting" />
+
+		<h2>4. 文字詰めゲームのビジュアライズ</h2>
+
+		<iframe class="square" src="./typesetting-visualize" />
 	</main>
 </template>
 
@@ -41,6 +47,12 @@ h1, h2, p
 iframe
 	width 100%
 	height auto
-	aspect-ratio 4 / 5
 	outline 1px solid white
+	aspect-ratio 4 / 3
+
+	&.portrait
+		aspect-ratio 4 / 5
+
+	&.square
+		aspect-ratio 1 / 1
 </style>

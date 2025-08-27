@@ -27,17 +27,17 @@
 					:alpha="true"
 					:resize="true"
 				>
-					<Camera :position="{z: 10}" :fov="30" />
+					<Camera :position="{z: 5}" :fov="26.5" />
 					<Scene>
 						<AmbientLight :intensity="1" />
 						<DirectionalLight
 							:position="{x: -10, y: 10, z: 5}"
 							:intensity="1"
 						/>
-						<Group :position="{y: -1.2}">
-							<FbxModel
-								src="/chigyo-games/shower/faucet_2.fbx"
-								@load="onLoadModel"
+						<Group :position="{y: -0.5}">
+							<Faucet2
+								ref="faucet2"
+								@update:waterAmounts="waterAmounts = $event"
 							/>
 						</Group>
 					</Scene>
@@ -48,12 +48,6 @@
 </template>
 
 <script setup lang="ts">
-import type {Group as ThreeGroup, Mesh} from 'three'
-import {
-	MeshStandardMaterial,
-	TextureLoader,
-	EquirectangularReflectionMapping,
-} from 'three'
 import {
 	AmbientLight,
 	Camera,
@@ -61,39 +55,55 @@ import {
 	Renderer,
 	Scene,
 	Group,
-	FbxModel,
 } from 'troisjs'
 
-function onLoadModel(group: ThreeGroup) {
-	// Load 2:1 equirectangular image as environment map
-	const loader = new TextureLoader()
-	loader.load('/chigyo-games/shower/studio023.jpg', texture => {
-		texture.mapping = EquirectangularReflectionMapping
+// Grid Helper for Three.js
+import {GridHelper} from 'three'
 
-		// Apply to all meshes once loaded
-		group.traverse((obj: any) => {
-			if (obj?.isMesh) {
-				const mesh = obj as Mesh
-				if (mesh.material instanceof MeshStandardMaterial) {
-					mesh.material.envMap = texture
-					mesh.material.needsUpdate = true
-				}
-			}
-		})
-	})
+import {useDrag} from '~/composables/useDrag'
+import type Faucet2 from '~/components/Faucet2.vue'
+import {useResizeObserver} from '@vueuse/core'
 
-	group.traverse((obj: any) => {
-		if (obj?.isMesh) {
-			const mesh = obj as Mesh
+const renderer = ref<InstanceType<typeof Renderer>>()
+const canvas = computed(() => renderer.value?.canvas)
 
-			mesh.material = new MeshStandardMaterial({
-				color: 0xffffff,
-				metalness: 0.8, // 金属感を強化
-				roughness: 0.2, // 滑らかにして反射を強化
-			})
-		}
-	})
+const waterAmounts = reactive({hot: 0, cold: 0})
+
+const faucet2 = ref<InstanceType<typeof Faucet2>>()
+
+onMounted(() => {
+	if (renderer.value?.three?.scene) {
+		const gridHelper = new GridHelper(2, 8)
+		gridHelper.rotation.x = Math.PI / 2
+		renderer.value.three.scene.add(gridHelper)
+	}
+})
+
+// Resize Canvas
+function onResize() {
+	if (!renderer.value?.canvas) return
+	const {width, height} = renderer.value?.canvas.getBoundingClientRect()
+	console.log(width, height)
+	const dpi = window.devicePixelRatio
+	renderer.value?.three.setSize(width * dpi, height * dpi)
 }
+
+onMounted(onResize)
+useResizeObserver(
+	computed(() => renderer.value?.canvas),
+	onResize
+)
+
+watchEffect(() => {
+	console.log(toRaw(waterAmounts))
+})
+
+useDrag({
+	target: canvas,
+	onDrag: data => {
+		faucet2.value?.onDrag(data)
+	},
+})
 </script>
 
 <style lang="stylus">

@@ -1,9 +1,6 @@
 <template>
 	<main class="Main">
-		<svg
-			class="graph"
-			:viewBox="`${minValue} ${-maxValue} ${maxValue - minValue} ${maxValue - minValue}`"
-		>
+		<svg class="graph" viewBox="0 0 1000 1000">
 			<defs>
 				<marker
 					id="arrowhead"
@@ -17,30 +14,18 @@
 				</marker>
 			</defs>
 			<!-- Axes -->
-			<path
-				class="axis"
-				:d="`M ${minValue} 0 L ${maxValue} 0`"
-				marker-end="url(#arrowhead)"
-			/>
-			<path
-				class="axis"
-				:d="`M 0 ${-minValue} L 0 ${-maxValue}`"
-				marker-end="url(#arrowhead)"
-			/>
-			<path
-				class="reflection"
-				:d="`M ${minValue} ${-minValue} L ${maxValue} ${-maxValue}`"
-			/>
+			<path class="x-equals-y" :d="xEqualsY" />
+			<path class="axis" :d="axisX" />
+			<path class="axis" :d="axisY" />
 			<!-- X axis label -->
-			<text :x="minValue + 10" y="40" class="axis-label" text-anchor="start">
-				ち〜ぎ
-			</text>
+			<text x="0" y="500" class="axis-label" text-anchor="start">ち〜ぎ</text>
 			<!-- Y axis label -->
 			<text
-				:x="minValue + 10"
-				y="-10"
+				x="0"
+				y="500"
 				class="axis-label"
 				text-anchor="start"
+				:transform-origin="transform([0, 0])"
 				transform="rotate(-90)"
 			>
 				ぎ〜よ
@@ -50,7 +35,7 @@
 			<g
 				v-if="myCurrentKernings"
 				class="my-point"
-				:transform="`translate(${myCurrentKernings[0]}, ${-myCurrentKernings[1]})`"
+				:transform="myPointTransform"
 			>
 				<circle class="my-point-circle" cx="0" cy="0" r="10" />
 				<text class="my-point-label" x="12" y="0">自分</text>
@@ -60,7 +45,8 @@
 </template>
 
 <script setup lang="ts">
-import {useInterval} from '@vueuse/core'
+import {useEventListener, useInterval} from '@vueuse/core'
+import {scalar, vec2} from 'linearly'
 import {useGameAPI} from '~/composables/useGameAPI'
 
 const {getGameRecords} = useGameAPI()
@@ -75,7 +61,7 @@ interface GameTypesettingRecord {
 	}[]
 }
 
-const res = await getGameRecords<GameTypesettingRecord>('typesetting', 50)
+const res = await getGameRecords<GameTypesettingRecord>('typesetting', 100)
 
 const valueRange = computed<[number, number]>(() => {
 	return res.records.reduce(
@@ -91,8 +77,37 @@ const valueRange = computed<[number, number]>(() => {
 	)
 })
 
-const minValue = computed(() => valueRange.value[0])
-const maxValue = computed(() => valueRange.value[1])
+const transform = computed<(pos: vec2) => string>(() => {
+	const [minValue, maxValue] = valueRange.value
+	return (pos: vec2) =>
+		vec2
+			.efit(
+				pos,
+				[minValue, minValue],
+				[maxValue, maxValue],
+				[0, 1000],
+				[1000, 0]
+			)
+			.join(' ')
+})
+
+const axisX = computed(() => {
+	const [min, max] = valueRange.value
+	const xform = transform.value
+	return `M ${xform([min, 0])} L ${xform([max, 0])}`
+})
+
+const axisY = computed(() => {
+	const [min, max] = valueRange.value
+	const yform = transform.value
+	return `M ${yform([0, min])} L ${yform([0, max])}`
+})
+
+const xEqualsY = computed(() => {
+	const [min, max] = valueRange.value
+	const xform = transform.value
+	return `M ${xform([min, min])} L ${xform([max, max])}`
+})
 
 // 秒数をループ
 const fps = 30
@@ -127,7 +142,6 @@ const currentKernings = computed(() => {
 const myKernings = ref<[number, number][] | null>(null)
 
 function loadMyKernings() {
-	console.log('loadMyKernings')
 	myKernings.value = JSON.parse(
 		localStorage.getItem('game__typesetting') ?? 'null'
 	)
@@ -139,11 +153,27 @@ const myCurrentKernings = computed(() => {
 
 // 点のパスに変更。つまり M 1 2 L 1 2 みたいなの。
 const pointCloudPath = computed(() => {
+	const xform = transform.value
 	return currentKernings.value
-		.map(([x, y]) => {
-			return `M ${x} ${-y} L ${x} ${-y}`
+		.map(pos => {
+			const transformed = xform(pos)
+			return `M ${transformed} L ${transformed}`
 		})
 		.join('')
+})
+
+const myPointTransform = computed(() => {
+	if (!myCurrentKernings.value) return ''
+	const xform = transform.value
+	const transformed = xform(myCurrentKernings.value)
+	return `translate(${transformed})`
+})
+
+useEventListener('storage', event => {
+	if (event.key === 'game__typesetting') {
+		console.log('localstorage updated')
+		currentFrame.value = 0
+	}
 })
 </script>
 
@@ -170,28 +200,28 @@ body
 	height 100%
 	overflow visible
 
-.axis
-	stroke var(--color-text)
-	stroke-width 2
-	vector-effect non-scaling-stroke
-
-.reflection
-	stroke white
-	stroke-dasharray 1 10
-	stroke-width 2
+path
 	stroke-linecap round
 	vector-effect non-scaling-stroke
 
+.axis
+	stroke var(--color-text)
+	stroke-width 2
+	marker-end url(#arrowhead)
+
+.x-equals-y
+	stroke white
+	stroke-dasharray 5 5
+	stroke-width 2
+
 text
-	font-size 2rem
+	font-size 1.5rem
 	fill var(--color-text)
 
 .point-cloud
 	fill none
 	stroke var(--color-primary)
 	stroke-width 10
-	stroke-linecap round
-	vector-effect non-scaling-stroke
 
 .my-point-circle
 	fill var(--color-text)

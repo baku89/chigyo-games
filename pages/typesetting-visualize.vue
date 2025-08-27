@@ -4,13 +4,14 @@
 			<defs>
 				<marker
 					id="arrowhead"
-					markerWidth="10"
-					markerHeight="7"
-					refX="9"
-					refY="3.5"
+					markerWidth="40"
+					markerHeight="28"
+					markerUnits="userSpaceOnUse"
+					refX="36"
+					refY="14"
 					orient="auto"
 				>
-					<polygon points="0 0, 10 3.5, 0 7" fill="var(--color-text)" />
+					<polygon points="0 0, 40 14, 0 28" fill="var(--color-text)" />
 				</marker>
 			</defs>
 			<!-- Axes -->
@@ -197,7 +198,7 @@ body
 
 .graph
 	width 100%
-	height 100%
+	aspect-ratio 1 / 1
 	overflow visible
 
 path
@@ -215,7 +216,8 @@ path
 	stroke-width 2
 
 text
-	font-size 1.5rem
+	font-size 24px
+	font-weight bold
 	fill var(--color-text)
 
 .point-cloud
@@ -227,6 +229,5 @@ text
 	fill var(--color-text)
 
 .my-point-label
-	font-weight bold
 	fill var(--color-text)
 </style>

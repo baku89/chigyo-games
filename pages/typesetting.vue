@@ -6,10 +6,11 @@
 				<p>
 					3つのスライダーを調整して<br />
 					「<span class="serif">ちぎょ</span>」という文字を<br />
-					いい感じに詰めてみよう！
+					いい感じに詰めてみよう<br />
 				</p>
 				<p>
-					制限時間は<strong>{{ gameDuration }}秒</strong>
+					制限時間は<strong>{{ gameDuration }}秒</strong><br />
+					正解はありません
 				</p>
 				<p class="small">
 					※ 本ゲームでは、操作データが一度だけサーバーに送信・記録されます。<br />

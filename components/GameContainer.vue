@@ -2,7 +2,7 @@
 	<div class="GameContainer">
 		<!-- Main Game Screen (Always rendered) -->
 		<div class="game-screen">
-			<Countdown :gameDuration="gameDuration" />
+			<Countdown class="countdown" :gameDuration="gameDuration" />
 			<div class="game-content">
 				<slot
 					:canEdit="game.state === 'practice' || game.state === 'playing'"
@@ -74,6 +74,9 @@ body
 	height 100%
 	display flex
 	flex-direction column
+
+.countdown
+	z-index 1
 
 .game-content
 	flex-grow 1

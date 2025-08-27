@@ -129,7 +129,6 @@ game.on('reset', () => {
 	display flex
 	align-items center
 	gap 1rem
-	background-color var(--color-bg)
 	transition all 0.15s ease-in-out
 	--color var(--color-text)
 	--amp -1rem

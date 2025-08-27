@@ -17,6 +17,8 @@
 		"nuxt": "^4.0.0",
 		"pinia": "^3.0.3",
 		"stylus": "^0.64.0",
+		"three": "0.134",
+		"troisjs": "^0.3.4",
 		"vue": "^3.5.19"
 	},
 	"devDependencies": {

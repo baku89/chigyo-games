@@ -19,7 +19,6 @@
 
 		<template #default>
 			<main class="Shower">
-				<h1>稚魚シャワー</h1>
 				<Renderer
 					ref="renderer"
 					class="shower-renderer"
@@ -32,11 +31,12 @@
 						<AmbientLight :intensity="1" />
 						<DirectionalLight
 							:position="{x: -10, y: 10, z: 5}"
-							:intensity="1"
+							:intensity="2"
 						/>
 						<Group :position="{y: -0.5}">
-							<Faucet2
-								ref="faucet2"
+							<component
+								:is="Facets[faucetType - 1]"
+								ref="faucet"
 								@update:waterAmounts="waterAmounts = $event"
 							/>
 						</Group>
@@ -61,15 +61,21 @@ import {
 import {GridHelper} from 'three'
 
 import {useDrag} from '~/composables/useDrag'
-import type Faucet2 from '~/components/Faucet2.vue'
+import Faucet1 from '~/components/Faucet1.vue'
+import Faucet2 from '~/components/Faucet2.vue'
+import Faucet3 from '~/components/Faucet3.vue'
 import {useResizeObserver} from '@vueuse/core'
+
+const Facets = [Faucet1, Faucet2, Faucet3]
 
 const renderer = ref<InstanceType<typeof Renderer>>()
 const canvas = computed(() => renderer.value?.canvas)
 
 const waterAmounts = reactive({hot: 0, cold: 0})
 
-const faucet2 = ref<InstanceType<typeof Faucet2>>()
+const faucetType = ref<1 | 2 | 3>(3)
+
+const faucet = ref<InstanceType<typeof Faucet2 | typeof Faucet1>>()
 
 onMounted(() => {
 	if (renderer.value?.three?.scene) {
@@ -101,7 +107,7 @@ watchEffect(() => {
 useDrag({
 	target: canvas,
 	onDrag: data => {
-		faucet2.value?.onDrag(data)
+		faucet.value?.onDrag(data)
 	},
 })
 </script>

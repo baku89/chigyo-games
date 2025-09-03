@@ -5,6 +5,7 @@ export interface DragData {
 	initial: vec2
 	delta: vec2
 	current: vec2
+	prev: vec2
 }
 
 interface useDragOptions {
@@ -18,6 +19,7 @@ export function useDrag(options: useDragOptions) {
 		initial: vec2.zero,
 		delta: vec2.zero,
 		current: vec2.zero,
+		prev: vec2.zero,
 	})
 
 	useEventListener(options.target, 'pointerdown', (e: PointerEvent) => {
@@ -41,8 +43,6 @@ export function useDrag(options: useDragOptions) {
 		isDragging.value = false
 	}
 
-	let prev: vec2 = vec2.zero
-
 	function handlePointerMove(e: PointerEvent, setInitial: boolean) {
 		const target = e.target as HTMLElement
 
@@ -58,13 +58,13 @@ export function useDrag(options: useDragOptions) {
 		)
 
 		if (setInitial) {
-			prev = data.initial = data.current
+			data.initial = data.prev = data.current
 		}
 
-		data.delta = vec2.sub(data.current, prev)
+		data.delta = vec2.sub(data.current, data.prev)
 
 		options.onDrag(toRaw(data))
 
-		prev = data.current
+		data.prev = data.current
 	}
 }

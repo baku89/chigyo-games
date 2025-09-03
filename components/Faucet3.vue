@@ -1,20 +1,16 @@
 <template>
 	<FbxModel
-		src="/chigyo-games/shower/faucet2_body.fbx"
+		src="/chigyo-games/shower/faucet3_body.fbx"
 		@load="setupMetalicMaterial"
 	/>
 	<FbxModel
-		src="/chigyo-games/shower/faucet2_ratio.fbx"
+		src="/chigyo-games/shower/faucet3_lever.fbx"
 		@load="setupMetalicMaterial"
-		:rotation="{x: scalar.rad(scalar.lerp(75, -75, ratio) + 50)}"
+		:position="{y: 0.116919}"
+		:rotation="rotation"
 	/>
 	<FbxModel
-		src="/chigyo-games/shower/faucet2_pressure.fbx"
-		@load="setupMetalicMaterial"
-		:rotation="{x: scalar.rad(scalar.fit(pressure, 0, 2, -75, 75) + 20)}"
-	/>
-	<FbxModel
-		src="/chigyo-games/shower/faucet2_arrow.fbx"
+		src="/chigyo-games/shower/faucet3_arrow.fbx"
 		@load="setupConstantMaterial"
 	/>
 </template>
@@ -29,20 +25,33 @@ import {FbxModel} from 'troisjs'
 
 import type {DragData} from '~/composables/useDrag'
 import type {WaterAmounts} from '~/types/faucet'
+import {Euler} from 'three'
 
 const emit = defineEmits<{
 	(e: 'update:waterAmounts', value: WaterAmounts): void
 }>()
 
 const ratio = ref(0) // 0: cold, 1: hot
-const pressure = ref(0) // 0: none, 1: max
+const pressure = ref(0) // 0: none, 1: max (0-2)
+
+const rotation = computed(() => {
+	const [x, y, z, order] = new Euler(
+		scalar.rad(scalar.fit(pressure.value, 0, 2, -15, 30)),
+		scalar.rad(scalar.lerp(70, -70, ratio.value)),
+		0,
+		'YXZ'
+	)
+		.reorder('XYZ')
+		.toArray()
+
+	console.log({order})
+
+	return {x, y, z}
+})
 
 function onDrag(data: DragData) {
-	if (data.initial[0] < 0) {
-		ratio.value = scalar.clamp(ratio.value - data.delta[1], 0, 1.5)
-	} else {
-		pressure.value = scalar.clamp(pressure.value + data.delta[1], 0, 1.5)
-	}
+	ratio.value = scalar.clamp(ratio.value - data.delta[0] * 0.7, 0, 1)
+	pressure.value = scalar.clamp(pressure.value + data.delta[1], 0, 2)
 }
 
 const waterAmounts = computed<WaterAmounts>(() => {
@@ -50,6 +59,10 @@ const waterAmounts = computed<WaterAmounts>(() => {
 		hot: Math.min(ratio.value * pressure.value, 1),
 		cold: Math.min((1 - ratio.value) * pressure.value, 1),
 	}
+})
+
+watchEffect(() => {
+	console.log({ratio: ratio.value, pressure: pressure.value})
 })
 
 watchEffect(() => {

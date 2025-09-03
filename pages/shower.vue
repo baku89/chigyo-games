@@ -33,7 +33,7 @@
 							:position="{x: -10, y: 10, z: 5}"
 							:intensity="2"
 						/>
-						<ShowerHead />
+						<ShowerHead :water-amounts="waterAmounts" />
 						<Group :position="{y: -0.67}">
 							<component
 								:is="Facets[faucetType - 1]"
@@ -65,14 +65,16 @@ import {useDrag} from '~/composables/useDrag'
 import Faucet1 from '~/components/Faucet1.vue'
 import Faucet2 from '~/components/Faucet2.vue'
 import Faucet3 from '~/components/Faucet3.vue'
+import ShowerHead from '~/components/ShowerHead.vue'
 import {useResizeObserver} from '@vueuse/core'
+import type {WaterAmounts} from '~/types/faucet'
 
 const Facets = [Faucet1, Faucet2, Faucet3]
 
 const renderer = ref<InstanceType<typeof Renderer>>()
 const canvas = computed(() => renderer.value?.canvas)
 
-const waterAmounts = reactive({hot: 0, cold: 0})
+const waterAmounts = ref<WaterAmounts>({hot: 0, cold: 0})
 
 const faucetType = ref<1 | 2 | 3>(2)
 

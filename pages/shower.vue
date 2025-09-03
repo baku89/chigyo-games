@@ -33,6 +33,11 @@
 							:position="{x: -10, y: 10, z: 5}"
 							:intensity="2"
 						/>
+						<FbxModel
+							src="/chigyo-games/shower/shower_head.fbx"
+							:position="{x: -0.1, y: 0.7}"
+							@load="setupMetalicMaterial"
+						/>
 						<Group :position="{y: -0.67}">
 							<component
 								:is="Facets[faucetType - 1]"
@@ -55,6 +60,7 @@ import {
 	Renderer,
 	Scene,
 	Group,
+	FbxModel,
 } from 'troisjs'
 
 // Grid Helper for Three.js
@@ -65,6 +71,7 @@ import Faucet1 from '~/components/Faucet1.vue'
 import Faucet2 from '~/components/Faucet2.vue'
 import Faucet3 from '~/components/Faucet3.vue'
 import {useResizeObserver} from '@vueuse/core'
+import {setupMetalicMaterial} from '~/utils/faucetsMaterial'
 
 const Facets = [Faucet1, Faucet2, Faucet3]
 
@@ -73,7 +80,7 @@ const canvas = computed(() => renderer.value?.canvas)
 
 const waterAmounts = reactive({hot: 0, cold: 0})
 
-const faucetType = ref<1 | 2 | 3>(1)
+const faucetType = ref<1 | 2 | 3>(2)
 
 const faucet = ref<InstanceType<typeof Faucet2 | typeof Faucet1>>()
 

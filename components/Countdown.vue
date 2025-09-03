@@ -126,6 +126,7 @@ game.on('reset', () => {
 @import '../assets/style.styl'
 
 .Countdown
+	position relative
 	display flex
 	align-items center
 	gap 1rem
@@ -164,6 +165,10 @@ game.on('reset', () => {
 	font-size 2rem
 	font-weight bold
 	text-align center
+	position absolute
+	inset 0
+	line-height 4rem
+	pointer-events none
 
 .start-button
 	font-size 1.5rem

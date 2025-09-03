@@ -33,7 +33,7 @@
 							:position="{x: -10, y: 10, z: 5}"
 							:intensity="2"
 						/>
-						<Group :position="{y: -0.5}">
+						<Group :position="{y: -0.67}">
 							<component
 								:is="Facets[faucetType - 1]"
 								ref="faucet"
@@ -73,7 +73,7 @@ const canvas = computed(() => renderer.value?.canvas)
 
 const waterAmounts = reactive({hot: 0, cold: 0})
 
-const faucetType = ref<1 | 2 | 3>(3)
+const faucetType = ref<1 | 2 | 3>(1)
 
 const faucet = ref<InstanceType<typeof Faucet2 | typeof Faucet1>>()
 

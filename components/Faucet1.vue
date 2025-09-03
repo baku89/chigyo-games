@@ -43,7 +43,7 @@ const waterAmounts = reactive<WaterAmounts>({hot: 0, cold: 0})
 function onDrag(data: DragData) {
 	const type: keyof WaterAmounts = data.initial[0] > 0 ? 'hot' : 'cold'
 
-	const handlePosition: vec2 = [type === 'hot' ? HandleX : -HandleX, 0.5]
+	const handlePosition: vec2 = [type === 'hot' ? HandleX : -HandleX, 0.67]
 
 	const prev = vec2.sub(data.prev, handlePosition)
 	const current = vec2.sub(data.current, handlePosition)

@@ -72,7 +72,7 @@ function interpolateColor(ratio: number): string {
 	const hotColor = '#ff6b6b'
 
 	// Create color scale using chroma.js with better interpolation
-	const colorScale = chroma.scale([coldColor, hotColor]).mode('lch')
+	const colorScale = chroma.scale([coldColor, hotColor]).mode('hsv')
 
 	return colorScale(t).hex()
 }

@@ -34,6 +34,7 @@
 							:intensity="2"
 						/>
 						<ShowerHead :water-amounts="waterAmounts" />
+						<Chigyo :goodness="waterAmounts.hot" />
 						<Group :position="{y: -0.67}">
 							<component
 								:is="Facets[faucetType - 1]"
@@ -102,10 +103,6 @@ useResizeObserver(
 	computed(() => renderer.value?.canvas),
 	onResize
 )
-
-watchEffect(() => {
-	console.log(toRaw(waterAmounts))
-})
 
 useDrag({
 	target: canvas,

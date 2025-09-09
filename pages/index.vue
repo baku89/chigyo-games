@@ -2,6 +2,18 @@
 	<main>
 		<h1>稚魚ゲー</h1>
 
+		<p>
+			この2つのミニゲームは、映像作家の<a href="https://baku89.com">橋本 麦</a
+			>が執筆している、制作やデザインにまつわるテキストに埋め込む予定のものです。
+		</p>
+
+		<p>
+			プレイに協力いただいたみなさんのデータがどの媒体でどのように用いられるかは、この数週間内のお楽しみにして頂けたらと思います。<a
+				href="https://instagram.com/_baku89/"
+				>Instagram</a
+			>あるいは<a href="https://x.com/baku89">X</a>でお知らせします。
+		</p>
+
 		<h2>1. 稚魚シャワー</h2>
 
 		<iframe class="portrait" src="./shower" />
@@ -12,13 +24,20 @@
 	</main>
 </template>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
 body
 	background var(--color-bg)
 	overflow scroll
 	overflow-x hidden
 	padding-bottom 50vh
+
+p
+	line-height 1.8
+	font-size 16px
+
+	a:link
+		text-decoration underline
 
 main
 	padding 2rem

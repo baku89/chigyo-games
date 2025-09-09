@@ -11,6 +11,7 @@ export interface DragData {
 interface useDragOptions {
 	target: MaybeRefOrGetter<HTMLElement | null | undefined>
 	onDrag: (data: DragData) => void
+	preventScroll?: boolean
 }
 
 export function useDrag(options: useDragOptions) {
@@ -21,6 +22,16 @@ export function useDrag(options: useDragOptions) {
 		current: vec2.zero,
 		prev: vec2.zero,
 	})
+
+	// Set touch-action to prevent scroll when preventScroll is enabled
+	if (options.preventScroll !== false) {
+		watchEffect(() => {
+			const target = toValue(options.target)
+			if (target) {
+				target.style.touchAction = 'none'
+			}
+		})
+	}
 
 	useEventListener(options.target, 'pointerdown', (e: PointerEvent) => {
 		;(e.target as HTMLElement).setPointerCapture(e.pointerId)

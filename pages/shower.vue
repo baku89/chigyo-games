@@ -45,7 +45,7 @@
 							:intensity="2"
 						/>
 						<ShowerHead :water-amounts="waterAmounts" />
-						<Group :position="{y: 0.15}">
+						<Group :position="{y: 0.2}">
 							<Chigyo :goodness="goodness" />
 						</Group>
 						<Group :position="{y: -0.67}">
@@ -169,11 +169,11 @@ game.on('finish', async () => {
 })
 
 onMounted(async () => {
-	if (renderer.value?.three?.scene) {
-		const gridHelper = new GridHelper(2, 8)
-		gridHelper.rotation.x = Math.PI / 2
-		renderer.value.three.scene.add(gridHelper)
-	}
+	// if (renderer.value?.three?.scene) {
+	// 	const gridHelper = new GridHelper(2, 8)
+	// 	gridHelper.rotation.x = Math.PI / 2
+	// 	renderer.value.three.scene.add(gridHelper)
+	// }
 
 	// Load the goodness map for fitness calculation
 	await goodnessMapSampler.loadImage()
@@ -232,9 +232,10 @@ body
 	position absolute
 	z-index 1
 	font-weight bold
-	font-size 1.2rem
+	font-size 1.5rem
+	pointer-events none
 	text-align center
-	width fit-content
+	width max-content
 	top 60%
 	background-color with-alpha(var(--color-bg), 0.5)
 	padding .5em

@@ -8,6 +8,7 @@ export default defineNuxtConfig({
 	ssr: false,
 	app: {
 		head: {
+			title: '稚魚ゲー',
 			charset: 'utf-8',
 			viewport: 'width=device-width, initial-scale=1',
 			link: [

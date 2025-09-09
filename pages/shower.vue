@@ -18,7 +18,7 @@
 		</template>
 
 		<template #default="{canEdit}">
-			<main class="Shower">
+			<main class="Shower" :class="{invalid: !canEdit}">
 				<div class="practice-message" v-if="game.state === 'practice'">
 					<template v-if="faucetType === 1">
 						お湯と水の蛇口をドラッグで回して<br />シャワーを出してみよう
@@ -34,7 +34,6 @@
 				<Renderer
 					ref="renderer"
 					class="shower-renderer"
-					:class="{invalid: !canEdit}"
 					:antialias="true"
 					:alpha="true"
 					:resize="true"
@@ -257,6 +256,9 @@ body
 	aspect-ratio 1 / 1
 	position relative
 
+	&.invalid
+		pointer-events none
+
 .shower-renderer
 	position absolute
 	top 0
@@ -264,9 +266,6 @@ body
 	width 100%
 	height 100%
 	background transparent
-
-	&.invalid
-		pointer-events none
 
 .touchable
 	position absolute

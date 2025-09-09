@@ -131,7 +131,6 @@ onMounted(async () => {
 function onResize() {
 	if (!renderer.value?.canvas) return
 	const {width, height} = renderer.value?.canvas.getBoundingClientRect()
-	console.log(width, height)
 	const dpi = window.devicePixelRatio
 	renderer.value?.three.setSize(width * dpi, height * dpi)
 }
@@ -148,6 +147,13 @@ useDrag({
 		faucet.value?.onDrag(data)
 	},
 })
+
+game.on('startPreCountdown', resetAllValues)
+game.on('reset', resetAllValues)
+
+function resetAllValues() {
+	waterAmounts.value = {hot: 0, cold: 0}
+}
 </script>
 
 <style lang="stylus">

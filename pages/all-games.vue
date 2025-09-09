@@ -6,9 +6,17 @@
 
 		<iframe class="portrait" src="./shower" />
 
-		<h2>2. 稚魚文字詰め</h2>
+		<h2>2. 稚魚シャワーの適応度地形</h2>
+
+		<iframe src="./shower-landscape" />
+
+		<h2>3. 文字詰めゲーム</h2>
 
 		<iframe class="portrait" src="./typesetting" />
+
+		<h2>4. 文字詰めゲームのビジュアライズ</h2>
+
+		<iframe class="square" src="./typesetting-visualize" />
 	</main>
 </template>
 
@@ -26,11 +34,10 @@ main
 	position relative
 
 h1
-	font-size 4rem
-	font-weight bold
+	font-size 2rem
 
 h2
-	font-size 2.6rem
+	font-size 1.5rem
 	font-weight bold
 
 h1, h2, p
@@ -40,6 +47,7 @@ h1, h2, p
 iframe
 	width 100%
 	height auto
+	outline 1px solid white
 	aspect-ratio 4 / 3
 
 	&.portrait

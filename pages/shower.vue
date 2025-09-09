@@ -133,9 +133,9 @@ const {submitGameData} = useGameAPI()
 // Record water parameters every frame during gameplay
 game.on('tickRecord', frame => {
 	waterRecord.push({
-		hot: waterAmounts.value.hot,
-		cold: waterAmounts.value.cold,
-		goodness: goodness.value,
+		hot: Math.round(waterAmounts.value.hot * 10000),
+		cold: Math.round(waterAmounts.value.cold * 10000),
+		goodness: Math.round(goodness.value * 10000),
 	})
 })
 

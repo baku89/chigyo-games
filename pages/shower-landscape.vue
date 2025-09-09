@@ -10,9 +10,9 @@
 				:orbit-ctrl="true"
 			>
 				<Camera
-					:position="{x: 4, y: 4, z: 4}"
-					:fov="60"
-					:look-at="{x: 1, y: 1, z: 1}"
+					:position="{x: -6, y: 3, z: 4}"
+					:fov="30"
+					:look-at="{x: 0, y: 0, z: 0}"
 				/>
 				<Scene>
 					<AmbientLight :intensity="0.6" />
@@ -21,101 +21,42 @@
 						:intensity="0.8"
 					/>
 
-					<!-- Coordinate system axes -->
-					<Group>
-						<!-- X-axis (Cold) - Red -->
-						<Mesh :position="{x: 1, y: 0, z: 0}">
-							<CylinderGeometry
-								:radiusTop="0.02"
-								:radiusBottom="0.02"
-								:height="2"
-							/>
-							<BasicMaterial color="#ff0000" />
-						</Mesh>
-						<!-- Y-axis (Hot) - Green -->
-						<Mesh :position="{x: 0, y: 1, z: 0}">
-							<CylinderGeometry
-								:radiusTop="0.02"
-								:radiusBottom="0.02"
-								:height="2"
-							/>
-							<BasicMaterial color="#00ff00" />
-						</Mesh>
-						<!-- Z-axis (Goodness) - Blue -->
-						<Mesh :position="{x: 0, y: 0, z: 1}">
-							<CylinderGeometry
-								:radiusTop="0.02"
-								:radiusBottom="0.02"
-								:height="2"
-							/>
-							<BasicMaterial color="#0000ff" />
-						</Mesh>
-					</Group>
+					<Group :position="{x: -1, z: -1}">
+						<AxisArrow
+							:from="{x: 0, y: 0, z: 0}"
+							:to="{x: 2, y: 0, z: 0}"
+							label="お湯"
+						/>
+						<AxisArrow
+							:from="{x: 0, y: 0, z: 0}"
+							:to="{x: 0, y: 1, z: 0}"
+							label="よさ"
+						/>
+						<AxisArrow
+							:from="{x: 0, y: 0, z: 0}"
+							:to="{x: 0, y: 0, z: 2}"
+							label="水"
+						/>
 
-					<!-- Grid planes for reference -->
-					<Group>
-						<!-- XY plane (Cold-Hot plane) -->
-						<Mesh :position="{x: 1, y: 1, z: 0}" :rotation="{x: 0, y: 0, z: 0}">
-							<PlaneGeometry :width="2" :height="2" />
-							<BasicMaterial
-								color="#444444"
-								:transparent="true"
-								:opacity="0.1"
-							/>
-						</Mesh>
-						<!-- XZ plane (Cold-Goodness plane) -->
-						<Mesh
-							:position="{x: 1, y: 0, z: 1}"
-							:rotation="{x: Math.PI / 2, y: 0, z: 0}"
-						>
-							<PlaneGeometry :width="2" :height="2" />
-							<BasicMaterial
-								color="#444444"
-								:transparent="true"
-								:opacity="0.1"
-							/>
-						</Mesh>
-						<!-- YZ plane (Hot-Goodness plane) -->
-						<Mesh
-							:position="{x: 0, y: 1, z: 1}"
-							:rotation="{x: 0, y: Math.PI / 2, z: 0}"
-						>
-							<PlaneGeometry :width="2" :height="2" />
-							<BasicMaterial
-								color="#444444"
-								:transparent="true"
-								:opacity="0.1"
-							/>
-						</Mesh>
-					</Group>
+						<!-- Data points -->
+						<Group>
+							<Mesh
+								v-for="(point, index) in currentDataPoints"
+								:key="index"
+								:position="point.position"
+							>
+								<SphereGeometry :radius="0.02" />
+								<BasicMaterial :color="point.color" />
+							</Mesh>
+						</Group>
 
-					<!-- Data points -->
-					<Group>
-						<Mesh
-							v-for="(point, index) in currentDataPoints"
-							:key="index"
-							:position="point.position"
-						>
-							<SphereGeometry :radius="point.radius" />
-							<BasicMaterial
-								:color="point.color"
-								:transparent="true"
-								:opacity="point.opacity"
-							/>
-						</Mesh>
-					</Group>
-
-					<!-- User's current point -->
-					<Group v-if="myCurrentData">
-						<Mesh :position="myCurrentPosition">
-							<SphereGeometry :radius="0.08" />
-							<BasicMaterial color="#ffffff" />
-						</Mesh>
-						<!-- Wireframe sphere around user point -->
-						<Mesh :position="myCurrentPosition">
-							<SphereGeometry :radius="0.1" />
-							<BasicMaterial color="#ffffff" :wireframe="true" />
-						</Mesh>
+						<!-- User's current point -->
+						<Group v-if="myData && myCurrentData">
+							<Mesh :position="myCurrentPosition">
+								<SphereGeometry :radius="0.06" />
+								<BasicMaterial :color="faucetColors[myData.faucetType ?? 2]" />
+							</Mesh>
+						</Group>
 					</Group>
 				</Scene>
 			</Renderer>
@@ -124,10 +65,9 @@
 </template>
 
 <script setup lang="ts">
-import {useEventListener, useInterval} from '@vueuse/core'
-import {scalar, vec2, vec3} from 'linearly'
+import {useCssVar, useEventListener, useInterval} from '@vueuse/core'
+import {vec3} from 'linearly'
 import {useGameAPI} from '~/composables/useGameAPI'
-import chroma from 'chroma-js'
 import {
 	Renderer,
 	Camera,
@@ -135,12 +75,13 @@ import {
 	Group,
 	Mesh,
 	SphereGeometry,
-	CylinderGeometry,
 	PlaneGeometry,
 	BasicMaterial,
 	AmbientLight,
 	DirectionalLight,
 } from 'troisjs'
+import * as THREE from 'three'
+import AxisArrow from '~/components/AxisArrow.vue'
 
 const {getGameRecords} = useGameAPI()
 
@@ -184,16 +125,7 @@ const loadAllFaucetData = async () => {
 
 await loadAllFaucetData()
 
-// Filter controls
-const selectedFaucetType = ref<number>(0) // 0 = all, 1-3 = specific types
-
-const filteredRecords = computed(() => {
-	if (selectedFaucetType.value === 0) {
-		// Return all records from all faucet types
-		return Object.values(faucetData.value).flat()
-	}
-	return faucetData.value[selectedFaucetType.value] || []
-})
+console.log(faucetData.value)
 
 // Animation setup
 const fps = 30
@@ -218,25 +150,25 @@ useInterval(1000 / 60, {
 
 // Transform functions for 3D coordinate mapping
 const transform3D = (waterData: WaterRecord): vec3 => {
+	// Data is scaled by 10000, so divide to get original values
 	// Map from game coordinates (0-2 range) to 3D space (0-2 range)
+	const hot = waterData.hot / 10000
+	const cold = waterData.cold / 10000
+	const goodness = waterData.goodness / 10000 / 2
+
 	return [
-		waterData.cold, // X-axis: Cold
-		waterData.hot, // Y-axis: Hot
-		waterData.goodness * 2, // Z-axis: Goodness (0-1 -> 0-2)
+		hot, // X-axis: Hot
+		goodness * 1, // Y-axis: Goodness (0-1 -> 0-2)
+		cold, // Z-axis: Cold
 	]
 }
 
 // Faucet type colors
-const faucetColors = {
+const faucetColors: Record<number, string> = {
 	1: '#ff6b6b', // Red for Faucet 1
 	2: '#4ecdc4', // Teal for Faucet 2
 	3: '#ffe66d', // Yellow for Faucet 3
 }
-
-// Color scale for goodness
-const goodnessColorScale = chroma
-	.scale(['#ff4422', '#ffaa00', '#22ff44'])
-	.mode('lch')
 
 // Current frame data points for 3D visualization
 const currentDataPoints = computed(() => {
@@ -252,14 +184,6 @@ const currentDataPoints = computed(() => {
 	Object.entries(faucetData.value).forEach(([faucetType, records]) => {
 		const typeNum = parseInt(faucetType)
 
-		// Only include this faucet type if it's selected or if "All Types" is selected
-		if (
-			selectedFaucetType.value !== 0 &&
-			selectedFaucetType.value !== typeNum
-		) {
-			return
-		}
-
 		records.forEach(record => {
 			const waterData = record.payload.water_record[currentIndex.value]
 			if (waterData) {
@@ -268,7 +192,7 @@ const currentDataPoints = computed(() => {
 				points.push({
 					position: {x, y, z},
 					radius: 0.05,
-					color: faucetColors[typeNum as keyof typeof faucetColors],
+					color: faucetColors[typeNum]!,
 					opacity: 0.7,
 					faucetType: typeNum,
 				})
@@ -314,6 +238,21 @@ useEventListener('storage', event => {
 	if (event.key === 'game__shower') {
 		console.log('localStorage updated')
 		currentFrame.value = 0
+	}
+})
+
+const borderColor = useCssVar('--color-border')
+
+const renderer = ref<InstanceType<typeof Renderer> | null>(null)
+onMounted(() => {
+	if (renderer.value?.three?.scene) {
+		const gridHelper = new THREE.GridHelper(
+			2,
+			10,
+			borderColor.value,
+			borderColor.value
+		)
+		renderer.value.three.scene.add(gridHelper)
 	}
 })
 

@@ -253,6 +253,7 @@ body
 .Shower
 	padding 1rem
 	aspect-ratio 1 / 1
+	position relative
 
 .shower-renderer
 	position absolute
@@ -271,7 +272,6 @@ body
 	left 0
 	width 100%
 	height 50%
-	// background red
 	z-index 1
 
 .practice-message

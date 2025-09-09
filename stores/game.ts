@@ -58,6 +58,7 @@ export const useGameStore = defineStore('game', () => {
 		}
 
 		state.value = nextState
+		console.log('transition', event, nextState)
 		ee.emit(event)
 	}
 

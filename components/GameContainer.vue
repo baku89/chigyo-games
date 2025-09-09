@@ -5,7 +5,11 @@
 			<Countdown class="countdown" :gameDuration="gameDuration" />
 			<div class="game-content">
 				<slot
-					:canEdit="game.state === 'practice' || game.state === 'playing'"
+					:canEdit="
+						game.state === 'instruction' ||
+						game.state === 'practice' ||
+						game.state === 'playing'
+					"
 				/>
 			</div>
 		</div>

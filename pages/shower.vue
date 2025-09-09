@@ -237,6 +237,8 @@ game.on('reset', resetAllValues)
 function resetAllValues() {
 	waterAmounts.value = {hot: 0, cold: 0}
 	waterRecord.length = 0
+	// Reset faucet internal state
+	faucet.value?.reset?.()
 }
 
 game.on('reset', () => {

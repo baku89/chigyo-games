@@ -75,7 +75,6 @@ function updateEyeAnimation() {
 watch(
 	() => props.goodness,
 	() => {
-		console.log('goodness', props.goodness)
 		updateAnimationSpeed()
 		updateEyeAnimation()
 	}

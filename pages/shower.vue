@@ -21,13 +21,13 @@
 			<main class="Shower">
 				<div class="practice-message" v-if="game.state === 'practice'">
 					<template v-if="faucetType === 1">
-						お湯と水の蛇口をドラッグで回して<br />お湯を出してみよう
+						お湯と水の蛇口をドラッグで回して<br />シャワーを出してみよう
 					</template>
 					<template v-else-if="faucetType === 2">
-						温度と水勢のレバーを上下にドラッグして<br />お湯を出してみよう
+						温度と水勢のレバーを上下にドラッグして<br />シャワーを出してみよう
 					</template>
 					<template v-else-if="faucetType === 3">
-						レバーを上下左右にドラッグして<br />お湯を出してみよう
+						レバーを上下左右にドラッグして<br />シャワーを出してみよう
 					</template>
 				</div>
 				<div class="touchable" />

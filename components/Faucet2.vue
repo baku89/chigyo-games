@@ -39,16 +39,16 @@ const pressure = ref(0) // 0: none, 1: max
 
 function onDrag(data: DragData) {
 	if (data.initial[0] < 0) {
-		ratio.value = scalar.clamp(ratio.value - data.delta[1], 0, 1.5)
+		ratio.value = scalar.clamp(ratio.value - data.delta[1], 0, 1)
 	} else {
-		pressure.value = scalar.clamp(pressure.value + data.delta[1], 0, 1.5)
+		pressure.value = scalar.clamp(pressure.value + data.delta[1], 0, 2)
 	}
 }
 
 const waterAmounts = computed<WaterAmounts>(() => {
 	return {
-		hot: Math.min(ratio.value * pressure.value, 1),
-		cold: Math.min((1 - ratio.value) * pressure.value, 1),
+		hot: ratio.value * pressure.value,
+		cold: (1 - ratio.value) * pressure.value,
 	}
 })
 

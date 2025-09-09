@@ -54,8 +54,8 @@ function onDrag(data: DragData) {
 
 const waterAmounts = computed<WaterAmounts>(() => {
 	return {
-		hot: Math.min(ratio.value * pressure.value, 1),
-		cold: Math.min((1 - ratio.value) * pressure.value, 1),
+		hot: ratio.value * pressure.value,
+		cold: (1 - ratio.value) * pressure.value,
 	}
 })
 

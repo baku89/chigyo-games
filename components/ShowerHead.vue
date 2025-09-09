@@ -16,7 +16,7 @@
 					z: particle.position[2],
 				}"
 			>
-				<SphereGeometry :radius="0.01" />
+				<SphereGeometry :radius="0.02" />
 				<BasicMaterial :color="particle.color" />
 			</Mesh>
 		</Group>
@@ -37,6 +37,8 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const maxParticlesPerSecond = 200
+
 // Water calculations
 const totalWater = computed(
 	() => props.waterAmounts.hot + props.waterAmounts.cold
@@ -49,7 +51,7 @@ const hotRatio = computed(() =>
 // Particle spawn rate based on water pressure/amount
 const particleSpawnRate = computed(() => {
 	// particles per second based on total water
-	return totalWater.value * 500 // e.g., pressure 2 = 200 particles/sec
+	return totalWater.value * maxParticlesPerSecond
 })
 
 // Particle data structure using linearly vec format
@@ -62,17 +64,12 @@ interface WaterParticle {
 // Create reactive particles array
 const waterParticles = ref<WaterParticle[]>([])
 
+const colorScale = chroma.scale(['#2244ff', '#ff4422']).mode('lch')
+
 // Color interpolation function using chroma.js
 function interpolateColor(ratio: number): string {
 	// Clamp ratio between 0 and 1
 	const t = Math.max(0, Math.min(1, ratio))
-
-	// Cold color (blue): #4ecdc4, Hot color (red): #ff6b6b
-	const coldColor = '#4ecdc4'
-	const hotColor = '#ff6b6b'
-
-	// Create color scale using chroma.js with better interpolation
-	const colorScale = chroma.scale([coldColor, hotColor]).mode('hsv')
 
 	return colorScale(t).hex()
 }
@@ -85,7 +82,7 @@ function createParticle(): WaterParticle {
 	const diskDistance = Math.sqrt(Math.random()) * diskRadius // Uniform distribution on disk
 
 	// Position on disk using linearly (degrees)
-	const diskPosition = vec2.dir(diskAngle, diskDistance)
+	const diskPosition = vec2.add(vec2.dir(diskAngle, diskDistance), [-0.05, 0])
 	const [diskX, diskZ] = diskPosition
 
 	// Disk normal direction (downward with some spread)
@@ -101,7 +98,7 @@ function createParticle(): WaterParticle {
 	const normalAngleZRad = scalar.rad(normalAngleZ)
 
 	const velocity: vec3 = [
-		Math.sin(normalAngleXRad),
+		Math.sin(normalAngleXRad) + 0.15,
 		-Math.cos(Math.sqrt(normalAngleXRad ** 2 + normalAngleZRad ** 2)),
 		Math.sin(normalAngleZRad),
 	]
@@ -119,16 +116,25 @@ let particleAccumulator = 0
 
 // Spawn particles based on spawn rate
 function spawnParticles(currentTime: number) {
-	if (particleSpawnRate.value <= 0) return
+	if (particleSpawnRate.value <= 0) {
+		lastSpawnTime = currentTime
+		return
+	}
 
-	const deltaTime = (currentTime - lastSpawnTime) / 1000 // Convert to seconds
+	const rawDeltaTime = (currentTime - lastSpawnTime) / 1000
+	// Clamp deltaTime to prevent huge bursts after tab inactive or frame drops
+	const deltaTime = Math.min(rawDeltaTime, 1 / 30) // Max 1/30 second (30fps equivalent)
 	lastSpawnTime = currentTime
 
 	// Accumulate particles to spawn
 	particleAccumulator += particleSpawnRate.value * deltaTime
 
-	// Spawn whole particles
-	const particlesToSpawn = Math.floor(particleAccumulator)
+	// Limit maximum particles per frame to prevent performance issues
+	const maxParticlesPerFrame = 10
+	const particlesToSpawn = Math.min(
+		Math.floor(particleAccumulator),
+		maxParticlesPerFrame
+	)
 	particleAccumulator -= particlesToSpawn
 
 	for (let i = 0; i < particlesToSpawn; i++) {
@@ -155,23 +161,42 @@ function animate(currentTime: number) {
 		particle.position = [newPosition[0], newPosition[1], newPosition[2]]
 	})
 
-	// Remove particles that have fallen below y = -1
+	// Remove particles that have fallen below y = -1 or if there are too many
+	const maxTotalParticles = 400 // Limit total particle count for performance
 	waterParticles.value = waterParticles.value.filter(
 		particle => particle.position[1] > -1.0 // y is index 1
 	)
 
+	// If still too many particles, remove oldest ones
+	if (waterParticles.value.length > maxTotalParticles) {
+		waterParticles.value = waterParticles.value.slice(-maxTotalParticles)
+	}
+
 	animationId = requestAnimationFrame(animate)
+}
+
+// Handle page visibility changes to reset timing after tab becomes active
+function handleVisibilityChange() {
+	if (!document.hidden) {
+		// Tab became active, reset timing to prevent burst
+		lastSpawnTime = performance.now()
+		particleAccumulator = 0 // Reset accumulator
+	}
 }
 
 // Start animation when component is mounted
 onMounted(() => {
 	lastSpawnTime = performance.now()
 	animate(lastSpawnTime)
+
+	// Listen for visibility changes
+	document.addEventListener('visibilitychange', handleVisibilityChange)
 })
 
 onUnmounted(() => {
 	if (animationId) {
 		cancelAnimationFrame(animationId)
 	}
+	document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 </script>

@@ -65,7 +65,8 @@ function updateAnimationSpeed() {
 
 function updateEyeAnimation() {
 	if (eyeAnimationAction && eyeAnimationMixer) {
-		const targetTime = scalar.lerp(0, 0.25, props.goodness)
+		const duration = eyeAnimationAction.getClip().duration
+		const targetTime = scalar.lerp(0, duration, props.goodness)
 		eyeAnimationAction.time = targetTime
 		eyeAnimationMixer.update(0)
 	}

@@ -16,9 +16,9 @@
 			],
 			"samplers":[
 				{
-					"input":29,
+					"input":26,
 					"interpolation":"LINEAR",
-					"output":28
+					"output":25
 				}
 			]
 		}
@@ -129,9 +129,9 @@
 			"componentType":5126,
 			"count":225,
 			"type":"VEC3",
-			"min":[-0.0256589055,-0.0272153784,-0.0104862005
+			"min":[-0.0256587565,-0.0272258706,-0.0104870349
 			],
-			"max":[0.01265046,0.0313712992,0.00093999505
+			"max":[0.0126484632,0.0313726999,0.000938601792
 			]
 		},
 		{
@@ -159,9 +159,9 @@
 			"componentType":5126,
 			"count":225,
 			"type":"VEC3",
-			"min":[-0.0276356339,-0.0175197404,-0.0108727068
+			"min":[-0.0275768638,-0.0221505575,-0.0113177225
 			],
-			"max":[0.0157438815,0.0320596062,0.00275176018
+			"max":[0.0148715079,0.0326766931,0.0021404326
 			]
 		},
 		{
@@ -189,9 +189,9 @@
 			"componentType":5126,
 			"count":225,
 			"type":"VEC3",
-			"min":[-0.0280176401,-0.00179230794,-0.00865829736
+			"min":[-0.0277821124,-0.00807859004,-0.0100697204
 			],
-			"max":[0.0210367739,0.0294637419,0.00608420372
+			"max":[0.0175400376,0.0308330767,0.00428134948
 			]
 		},
 		{
@@ -219,9 +219,9 @@
 			"componentType":5126,
 			"count":225,
 			"type":"VEC3",
-			"min":[-0.0282022357,-0.00377828628,-0.00818964839
+			"min":[-0.0279964209,-0.00156398118,-0.00878723711
 			],
-			"max":[0.0237770677,0.040980272,0.00643601269
+			"max":[0.0207217336,0.0285841711,0.00600647181
 			]
 		},
 		{
@@ -275,46 +275,16 @@
 			]
 		},
 		{
-			"bufferView":25,
 			"componentType":5126,
-			"count":225,
-			"type":"VEC3",
-			"min":[-0.0282237828,-0.00401007012,-0.00812514126
-			],
-			"max":[0.0240970254,0.042292662,0.00642117858
-			]
-		},
-		{
-			"bufferView":26,
-			"componentType":5126,
-			"count":225,
-			"type":"VEC3",
-			"min":[0,0,0
-			],
-			"max":[0,0,0
-			]
-		},
-		{
-			"bufferView":27,
-			"componentType":5126,
-			"count":225,
-			"type":"SCALAR",
-			"min":[0
-			],
-			"max":[0
-			]
-		},
-		{
-			"componentType":5126,
-			"count":72,
+			"count":56,
 			"type":"SCALAR",
 			"sparse":{
-				"count":8,
+				"count":7,
 				"values":{
-					"bufferView":29
+					"bufferView":26
 				},
 				"indices":{
-					"bufferView":28,
+					"bufferView":25,
 					"componentType":5125
 				}
 			},
@@ -324,20 +294,20 @@
 			]
 		},
 		{
-			"bufferView":30,
+			"bufferView":27,
 			"componentType":5126,
-			"count":9,
+			"count":8,
 			"type":"SCALAR",
 			"min":[0
 			],
-			"max":[0.333333343
+			"max":[0.291666657
 			]
 		}
 	],
 	"buffers":[
 		{
 			"uri":"chigyo_eye_data.bin",
-			"byteLength":58912
+			"byteLength":52600
 		}
 	],
 	"bufferViews":[
@@ -493,35 +463,17 @@
 		{
 			"buffer":0,
 			"byteOffset":52512,
-			"byteLength":2700,
-			"target":34962
+			"byteLength":28
 		},
 		{
 			"buffer":0,
-			"byteOffset":55212,
-			"byteLength":2700,
-			"target":34962
+			"byteOffset":52540,
+			"byteLength":28
 		},
 		{
 			"buffer":0,
-			"byteOffset":57912,
-			"byteLength":900,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteOffset":58812,
+			"byteOffset":52568,
 			"byteLength":32
-		},
-		{
-			"buffer":0,
-			"byteOffset":58844,
-			"byteLength":32
-		},
-		{
-			"buffer":0,
-			"byteOffset":58876,
-			"byteLength":36
 		}
 	],
 	"nodes":[
@@ -574,17 +526,12 @@
 							"COLOR_0":23,
 							"POSITION":22,
 							"_Alpha":24
-						},
-						{
-							"COLOR_0":26,
-							"POSITION":25,
-							"_Alpha":27
 						}
 					]
 				}
 			],
 			"extras":{
-				"targetNames":["","","","","","","",""
+				"targetNames":["","","","","","",""
 				]
 			}
 		}

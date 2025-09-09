@@ -303,7 +303,8 @@ body
 	gap 1rem
 
 	.comment
-		font-size 1.2rem
+		font-size 1.4rem
+		font-weight bold
 		background var(--color-text)
 		color var(--color-bg)
 		padding .5em

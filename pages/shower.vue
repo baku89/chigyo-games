@@ -77,6 +77,7 @@ import {GridHelper} from 'three'
 
 import {useDrag} from '~/composables/useDrag'
 import {useImageSampler} from '~/composables/useImageSampler'
+import {useGameAPI} from '~/composables/useGameAPI'
 import Faucet1 from '~/components/Faucet1.vue'
 import Faucet2 from '~/components/Faucet2.vue'
 import Faucet3 from '~/components/Faucet3.vue'
@@ -94,7 +95,10 @@ const canvas = computed(() => renderer.value?.canvas)
 
 const waterAmounts = ref<WaterAmounts>({hot: 0, cold: 0})
 
-const faucetType = ref<1 | 2 | 3>(2)
+// Randomly select faucet type (1, 2, or 3)
+const faucetType = ref<1 | 2 | 3>(
+	(Math.floor(Math.random() * 3) + 1) as 1 | 2 | 3
+)
 
 const faucet = ref<InstanceType<typeof Faucet2 | typeof Faucet1>>()
 
@@ -114,6 +118,54 @@ const goodness = computed(() => {
 	const uv: vec2 = [cold / 2, 1 - hot / 2]
 
 	return goodnessMapSampler.sampleRGB(uv)[0]
+})
+
+// Game data recording
+interface WaterRecord {
+	hot: number
+	cold: number
+	goodness: number
+}
+
+const waterRecord: WaterRecord[] = []
+const {submitGameData} = useGameAPI()
+
+// Record water parameters every frame during gameplay
+game.on('tickRecord', frame => {
+	waterRecord.push({
+		hot: waterAmounts.value.hot,
+		cold: waterAmounts.value.cold,
+		goodness: goodness.value,
+	})
+})
+
+// Submit game data when finished
+game.on('finish', async () => {
+	const hasSaved = !!localStorage.getItem('game__shower')
+
+	// Save to localStorage for backup
+	localStorage.setItem(
+		'game__shower',
+		JSON.stringify({
+			faucetType: faucetType.value,
+			waterRecord,
+		})
+	)
+
+	// Submit to API if not saved
+	if (true) {
+		const payload = {
+			faucet_type: faucetType.value,
+			water_record: waterRecord,
+		}
+
+		try {
+			await submitGameData('shower', faucetType.value, payload)
+			console.log('Shower game data submitted successfully')
+		} catch (error) {
+			// Error already logged in composable
+		}
+	}
 })
 
 onMounted(async () => {
@@ -153,6 +205,7 @@ game.on('reset', resetAllValues)
 
 function resetAllValues() {
 	waterAmounts.value = {hot: 0, cold: 0}
+	waterRecord.length = 0
 }
 </script>
 

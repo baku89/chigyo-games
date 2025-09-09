@@ -50,8 +50,6 @@ function onDrag(data: DragData) {
 
 	const angle = vec2.angle(prev, current)
 
-	console.log(angle)
-
 	waterAmounts[type] = scalar.clamp(
 		waterAmounts[type] + scalar.efit(angle, 0, 360, 0, 1),
 		0,
@@ -63,7 +61,6 @@ watch(
 	() => waterAmounts,
 	() => {
 		emit('update:waterAmounts', waterAmounts)
-		console.log(waterAmounts)
 	},
 	{deep: true}
 )

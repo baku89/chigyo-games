@@ -34,7 +34,7 @@
 							:intensity="2"
 						/>
 						<ShowerHead :water-amounts="waterAmounts" />
-						<Chigyo :goodness="waterAmounts.hot" />
+						<Chigyo :goodness="goodness" />
 						<Group :position="{y: -0.67}">
 							<component
 								:is="Facets[faucetType - 1]"
@@ -63,12 +63,14 @@ import {
 import {GridHelper} from 'three'
 
 import {useDrag} from '~/composables/useDrag'
+import {useImageSampler} from '~/composables/useImageSampler'
 import Faucet1 from '~/components/Faucet1.vue'
 import Faucet2 from '~/components/Faucet2.vue'
 import Faucet3 from '~/components/Faucet3.vue'
 import ShowerHead from '~/components/ShowerHead.vue'
 import {useResizeObserver} from '@vueuse/core'
 import type {WaterAmounts} from '~/types/faucet'
+import type {vec2} from 'linearly'
 
 const Facets = [Faucet1, Faucet2, Faucet3]
 
@@ -81,12 +83,33 @@ const faucetType = ref<1 | 2 | 3>(2)
 
 const faucet = ref<InstanceType<typeof Faucet2 | typeof Faucet1>>()
 
-onMounted(() => {
+// Use image sampler composable for goodness map
+const goodnessMapSampler = useImageSampler({
+	imageUrl: '/chigyo-games/shower/goodness_map.png',
+	interpolate: true,
+})
+
+const goodness = computed(() => {
+	const {hot, cold} = waterAmounts.value
+
+	if (!goodnessMapSampler.isLoaded.value) {
+		return 0
+	}
+
+	const uv: vec2 = [cold / 2, 1 - hot / 2]
+
+	return goodnessMapSampler.sampleRGB(uv)[0]
+})
+
+onMounted(async () => {
 	if (renderer.value?.three?.scene) {
 		const gridHelper = new GridHelper(2, 8)
 		gridHelper.rotation.x = Math.PI / 2
 		renderer.value.three.scene.add(gridHelper)
 	}
+
+	// Load the goodness map for fitness calculation
+	await goodnessMapSampler.loadImage()
 })
 
 // Resize Canvas

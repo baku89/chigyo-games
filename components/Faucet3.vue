@@ -44,8 +44,6 @@ const rotation = computed(() => {
 		.reorder('XYZ')
 		.toArray()
 
-	console.log({order})
-
 	return {x, y, z}
 })
 
@@ -59,10 +57,6 @@ const waterAmounts = computed<WaterAmounts>(() => {
 		hot: Math.min(ratio.value * pressure.value, 1),
 		cold: Math.min((1 - ratio.value) * pressure.value, 1),
 	}
-})
-
-watchEffect(() => {
-	console.log({ratio: ratio.value, pressure: pressure.value})
 })
 
 watchEffect(() => {

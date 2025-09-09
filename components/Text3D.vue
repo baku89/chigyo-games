@@ -1,6 +1,6 @@
 <template>
 	<Group>
-		<Mesh :position="position">
+		<Mesh ref="meshRef" :position="position">
 			<PlaneGeometry :width="textWidth" :height="textHeight" />
 			<BasicMaterial ref="materialRef" color="red" />
 		</Mesh>
@@ -19,6 +19,22 @@ interface Props {
 const props = defineProps<Props>()
 
 const materialRef = ref<InstanceType<typeof BasicMaterial> | null>(null)
+const meshRef = ref()
+
+// Inject camera position from parent
+const cameraPosition = inject('cameraPosition', ref({x: 0, y: 0, z: 5}))
+
+// Update mesh rotation to look at camera
+const updateMeshLookAt = () => {
+	if (meshRef.value?.mesh && cameraPosition.value) {
+		const camera = new THREE.Vector3(
+			cameraPosition.value.x,
+			cameraPosition.value.y,
+			cameraPosition.value.z
+		)
+		meshRef.value.mesh.lookAt(camera)
+	}
+}
 
 // Override material properties after mount
 onMounted(() => {
@@ -29,6 +45,13 @@ onMounted(() => {
 		material.transparent = true
 		material.needsUpdate = true
 	}
+
+	// Set up animation loop for billboard behavior
+	const animate = () => {
+		updateMeshLookAt()
+		requestAnimationFrame(animate)
+	}
+	animate()
 })
 
 // Create canvas texture with text
@@ -39,7 +62,7 @@ const textTexture = computed(() => {
 
 	if (!context) return null
 
-	const fontSize = 18
+	const fontSize = 96
 	const fontFamily = "'Zen Kaku Gothic New', sans-serif"
 
 	// Set font
@@ -78,10 +101,13 @@ const textTexture = computed(() => {
 
 // Watch for texture changes and update material
 watch(
-	() => [textTexture.value, materialRef.value?.material],
+	() =>
+		[
+			textTexture.value,
+			materialRef.value?.material as THREE.MeshBasicMaterial,
+		] as const,
 	([newTexture, material]) => {
 		if (material && newTexture) {
-			const material = materialRef.value.material as THREE.MeshBasicMaterial
 			material.map = newTexture
 			material.needsUpdate = true
 		}
@@ -97,11 +123,11 @@ const textAspectRatio = computed(() => {
 })
 
 const textWidth = computed(() => {
-	return 0.6 * textAspectRatio.value
+	return 0.2 * textAspectRatio.value
 })
 
 const textHeight = computed(() => {
-	return 0.6
+	return 0.2
 })
 
 // Clean up texture when component unmounts

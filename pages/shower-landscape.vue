@@ -10,6 +10,7 @@
 				:orbit-ctrl="true"
 			>
 				<Camera
+					ref="cameraRef"
 					:position="{x: -6, y: 3, z: 4}"
 					:fov="30"
 					:look-at="{x: 0, y: 0, z: 0}"
@@ -75,7 +76,6 @@ import {
 	Group,
 	Mesh,
 	SphereGeometry,
-	PlaneGeometry,
 	BasicMaterial,
 	AmbientLight,
 	DirectionalLight,
@@ -84,6 +84,26 @@ import * as THREE from 'three'
 import AxisArrow from '~/components/AxisArrow.vue'
 
 const {getGameRecords} = useGameAPI()
+
+// Camera ref and position provider for child components
+const cameraRef = ref()
+const cameraPosition = ref({x: -6, y: 3, z: 4})
+provide('cameraPosition', cameraPosition)
+
+// Update camera position for child components
+onMounted(() => {
+	const updateCameraPosition = () => {
+		if (cameraRef.value?.camera) {
+			cameraPosition.value = {
+				x: cameraRef.value.camera.position.x,
+				y: cameraRef.value.camera.position.y,
+				z: cameraRef.value.camera.position.z,
+			}
+		}
+		requestAnimationFrame(updateCameraPosition)
+	}
+	updateCameraPosition()
+})
 
 interface WaterRecord {
 	hot: number
@@ -174,10 +194,7 @@ const faucetColors: Record<number, string> = {
 const currentDataPoints = computed(() => {
 	const points: Array<{
 		position: {x: number; y: number; z: number}
-		radius: number
 		color: string
-		opacity: number
-		faucetType: number
 	}> = []
 
 	// Process each faucet type separately to maintain color coding
@@ -191,10 +208,7 @@ const currentDataPoints = computed(() => {
 
 				points.push({
 					position: {x, y, z},
-					radius: 0.05,
 					color: faucetColors[typeNum]!,
-					opacity: 0.7,
-					faucetType: typeNum,
 				})
 			}
 		})

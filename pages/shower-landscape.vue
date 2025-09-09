@@ -58,6 +58,13 @@
 								<BasicMaterial :color="faucetColors[myData.faucetType ?? 2]" />
 							</Mesh>
 						</Group>
+
+						<!-- Terrain wireframe -->
+						<Mesh
+							ref="terrainMeshRef"
+							:position="{x: 1, z: 1}"
+							:rotation="{x: -Math.PI / 2, y: 0, z: 0}"
+						/>
 					</Group>
 				</Scene>
 			</Renderer>
@@ -67,8 +74,9 @@
 
 <script setup lang="ts">
 import {useCssVar, useEventListener, useInterval} from '@vueuse/core'
-import {vec3} from 'linearly'
+import {vec2, vec3} from 'linearly'
 import {useGameAPI} from '~/composables/useGameAPI'
+import {useImageSampler} from '~/composables/useImageSampler'
 import {
 	Renderer,
 	Camera,
@@ -144,9 +152,6 @@ const loadAllFaucetData = async () => {
 }
 
 await loadAllFaucetData()
-
-console.log(faucetData.value)
-
 // Animation setup
 const fps = 30
 const gameDuration = 15
@@ -217,6 +222,62 @@ const currentDataPoints = computed(() => {
 	return points
 })
 
+// Initialize image sampler for terrain
+const goodnessMapSampler = useImageSampler({
+	imageUrl: '/chigyo-games/shower/goodness_map.png',
+	interpolate: true,
+})
+
+onMounted(async () => {
+	await goodnessMapSampler.loadImage()
+
+	createTerrain()
+})
+
+// Terrain geometry
+const terrainMeshRef = ref<InstanceType<typeof Mesh> | null>(null)
+
+// Create terrain from goodness map
+async function createTerrain() {
+	// Create plane geometry with subdivisions
+	const segments = 80
+	const geometry = new THREE.PlaneGeometry(2, 2, segments - 1, segments - 1)
+
+	// Modify vertices based on height map
+	const vertices = geometry.attributes.position!.array as Float32Array
+	console.log(vertices.length)
+	for (let i = 0; i < vertices.length; i += 3) {
+		const hot = vertices[i]!
+		const cold = vertices[i + 1]!
+		// Convert from geometry space (-1 to 1) to image space (0 to 1)
+		const uv = vec2.fit([cold, hot], [-1, -1], [1, 1], [1, 1], [0, 0])
+		const u = (cold + 1) / 2
+		// const v = 1 - (z + 1) / 2 // Flip V coordinate
+		// // Sample height using useImageSampler
+		const rgb = goodnessMapSampler.sampleRGB(uv)
+		const height = rgb[0] // Use red channel as height
+		// Set Y coordinate (height) with some scale
+		vertices[i + 2] = height / 2 // Scale height
+	}
+
+	geometry.attributes.position!.needsUpdate = true
+	geometry.computeVertexNormals()
+
+	// Create wireframe material
+	const material = new THREE.MeshBasicMaterial({
+		color: 0xffffff,
+		wireframe: true,
+		transparent: true,
+		opacity: 0.1,
+	})
+
+	// Set geometry and material to mesh
+	if (terrainMeshRef.value?.mesh) {
+		terrainMeshRef.value.mesh.geometry = geometry
+		terrainMeshRef.value.mesh.material = material
+	}
+}
+
 // User's data
 const myData = ref<{
 	faucetType: number
@@ -271,8 +332,10 @@ onMounted(() => {
 })
 
 // Load initial data
-onMounted(() => {
+onMounted(async () => {
 	loadMyData()
+
+	await loadAllFaucetData()
 })
 </script>
 

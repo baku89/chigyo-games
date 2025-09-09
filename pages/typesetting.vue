@@ -151,7 +151,7 @@ game.on('finish', async () => {
 	localStorage.setItem('game__typesetting', JSON.stringify(kerningsRecord))
 
 	// Submit to API if not saved
-	if (true) {
+	if (hasSaved) {
 		const payload = {
 			kernings_record: kerningsRecord,
 		}

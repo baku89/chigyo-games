@@ -184,7 +184,7 @@ game.on('finish', async () => {
 	)
 
 	// Submit to API if not saved
-	if (true) {
+	if (!hasSaved) {
 		const payload = {
 			faucet_type: faucetType.value,
 			water_record: waterRecord,

@@ -30,7 +30,7 @@
 		</div>
 
 		<!-- Result Overlay -->
-		<div v-if="game.state === 'finished'" class="result-overlay">
+		<div v-show="game.state === 'finished'" class="result-overlay">
 			<div class="result-content">
 				<h2>ゲーム終了</h2>
 				<slot name="result" />

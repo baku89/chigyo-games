@@ -59,7 +59,7 @@ function onLoadBody(gltf: any) {
 
 function updateAnimationSpeed() {
 	if (bodyAnimationAction) {
-		bodyAnimationAction.timeScale = scalar.lerp(0.2, 2, props.goodness)
+		bodyAnimationAction.timeScale = scalar.lerp(0, 2, props.goodness)
 	}
 }
 

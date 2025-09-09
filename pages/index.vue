@@ -4,21 +4,20 @@
 
 		<p>
 			この2つのミニゲームは、映像作家の<a href="https://baku89.com">橋本 麦</a
-			>が執筆している、制作やデザインにまつわるテキストに埋め込む予定のものです。
+			>が執筆している、制作やデザインについての論考に埋め込む予定のものです。
 		</p>
 
 		<p>
-			プレイに協力いただいたみなさんのデータがどの媒体でどのように用いられるかは、この数週間内のお楽しみにして頂けたらと思います。<a
-				href="https://instagram.com/_baku89/"
-				>Instagram</a
-			>あるいは<a href="https://x.com/baku89">X</a>でお知らせします。
+			プレイに協力いただいたみなさんのデータがどの媒体でどのように用いられるかは、この数週間内のお楽しみにしてもらえたら嬉しいです。公開されたら
+			<a href="https://instagram.com/_baku89/">Instagram</a> あるいは
+			<a href="https://x.com/baku89">X</a> でお知らせします。
 		</p>
 
 		<h2>1. 稚魚シャワー</h2>
 
 		<iframe class="portrait" src="./shower" />
 
-		<h2>2. 稚魚文字詰め</h2>
+		<h2>2. 稚魚詰め</h2>
 
 		<iframe class="portrait" src="./typesetting" />
 	</main>
@@ -30,7 +29,6 @@ body
 	background var(--color-bg)
 	overflow scroll
 	overflow-x hidden
-	padding-bottom 50vh
 
 p
 	line-height 1.8
@@ -43,6 +41,7 @@ main
 	padding 2rem
 	max-width 850px
 	position relative
+	padding-bottom 20vh
 
 h1
 	font-size 4rem

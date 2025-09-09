@@ -76,7 +76,7 @@ body
 	flex-direction column
 
 .countdown
-	z-index 1
+	z-index 2
 
 .game-content
 	flex-grow 1
@@ -153,4 +153,5 @@ body
 .result-content h2
 	font-size 2rem
 	margin-bottom 1rem
+	font-weight bold
 </style>

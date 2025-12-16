@@ -11,9 +11,9 @@
 			>
 				<Camera
 					ref="cameraRef"
-					:position="{x: -6, y: 3, z: 4}"
-					:fov="30"
-					:look-at="{x: 0, y: 0, z: 0}"
+					:position="{x: -5, y: 4, z: 2}"
+					:fov="23"
+					:lookAt="{x: 0, y: 0, z: 10}"
 				/>
 				<Scene>
 					<AmbientLight :intensity="0.6" />
@@ -73,7 +73,12 @@
 </template>
 
 <script setup lang="ts">
-import {useCssVar, useEventListener, useInterval} from '@vueuse/core'
+import {
+	useCssVar,
+	useEventListener,
+	useInterval,
+	useResizeObserver,
+} from '@vueuse/core'
 import {vec2, vec3} from 'linearly'
 import {useGameAPI} from '~/composables/useGameAPI'
 import {useImageSampler} from '~/composables/useImageSampler'
@@ -95,7 +100,7 @@ const {getGameRecords} = useGameAPI()
 
 // Camera ref and position provider for child components
 const cameraRef = ref()
-const cameraPosition = ref({x: -6, y: 3, z: 4})
+const cameraPosition = ref({x: 0, y: 0, z: 0})
 provide('cameraPosition', cameraPosition)
 
 // Update camera position for child components
@@ -190,9 +195,9 @@ const transform3D = (waterData: WaterRecord): vec3 => {
 
 // Faucet type colors
 const faucetColors: Record<number, string> = {
-	1: '#ff6b6b', // Red for Faucet 1
-	2: '#4ecdc4', // Teal for Faucet 2
-	3: '#ffe66d', // Yellow for Faucet 3
+	1: '#5283ff', // Blue for Faucet 1
+	2: '#ffe66d', // Yellow for Faucet 2
+	3: '#ff4242', // Red for Faucet 3
 }
 
 // Current frame data points for 3D visualization
@@ -331,6 +336,20 @@ onMounted(() => {
 	}
 })
 
+// Resize Canvas
+function onResize() {
+	if (!renderer.value?.canvas) return
+	const {width, height} = renderer.value?.canvas.getBoundingClientRect()
+	const dpi = window.devicePixelRatio
+	renderer.value?.three.setSize(width * dpi, height * dpi)
+}
+
+onMounted(onResize)
+useResizeObserver(
+	computed(() => renderer.value?.canvas),
+	onResize
+)
+
 // Load initial data
 onMounted(async () => {
 	loadMyData()
@@ -344,6 +363,7 @@ onMounted(async () => {
 
 html, body
 	margin 0
+	padding 0
 	width 100vw
 	height 100vh
 	overflow hidden
@@ -356,17 +376,13 @@ body
 
 .Main
 	main-wrapper()
-	display flex
-	flex-direction column
 	gap 1rem
-	max-width 90vw
-	max-height 90vh
+	aspect-ratio 4 / 3
 
 .visualization-container
 	position relative
 	width 100%
-	max-width 800px
-	aspect-ratio 1 / 1
+	height 100%
 
 .three-renderer
 	width 100%

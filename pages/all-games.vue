@@ -17,6 +17,10 @@
 		<h2>4. 文字詰めゲームのビジュアライズ</h2>
 
 		<iframe class="square" src="./typesetting-visualize" />
+
+		<h2>5. カラーピッカー</h2>
+
+		<iframe class="portrait" src="./color-picker" />
 	</main>
 </template>
 

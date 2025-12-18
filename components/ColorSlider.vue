@@ -1,32 +1,50 @@
 <template>
-	<div class="ColorSlider" ref="rootRef">
-		<canvas ref="canvasRef" class="canvas"></canvas>
-		<input
-			ref="inputRef"
-			class="slider"
-			type="range"
-			:min="min"
-			:max="max"
-			:step="0.001"
-			:value="modelValue"
-			@input="onInput"
-		/>
+	<div
+		class="ColorSlider"
+		:class="{hovering: hovering}"
+		@pointerover="hovering = true"
+		@pointerdown="onPointerDown"
+		@pointerleave="hovering = false"
+		@pointerup="onPointerUp"
+		@pointercancel="onPointerUp"
+		@pointerout="onPointerUp"
+		@mouseleave="onPointerUp"
+	>
+		<label class="label">{{ label }}</label>
+		<div class="slider">
+			<canvas ref="canvasRef" class="canvas"></canvas>
+			<input
+				ref="inputRef"
+				class="input"
+				type="range"
+				:min="min"
+				:max="max"
+				:step="0.001"
+				:value="modelValue"
+				@input="onInput"
+				:style="{color: currentColor}"
+			/>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import {useElementSize} from '@vueuse/core'
+import {useElementSize, useEventListener, useScrollLock} from '@vueuse/core'
 import type {RGB} from '../utils/colors'
+import {scalar} from 'linearly'
 
 const props = withDefaults(
 	defineProps<{
+		label: string
 		modelValue: number
 		/** スライダーの背景となるキャンバスのピクセルに入れる色の配列 */
 		colors?: RGB[]
 		min?: number
 		max?: number
+		currentColor?: string
 	}>(),
 	{
+		label: '',
 		colors: () => [],
 		min: 0,
 		max: 255,
@@ -37,13 +55,10 @@ const emit = defineEmits<{
 	'update:modelValue': [value: number]
 }>()
 
-const min = computed(() => props.min ?? 0)
-const max = computed(() => props.max ?? 255)
-
-const rootRef = ref<HTMLDivElement>()
 const canvasRef = ref<HTMLCanvasElement>()
+const {width: sliderWidth, height: sliderHeight} = useElementSize(canvasRef)
 
-const {height} = useElementSize(rootRef)
+const hovering = ref(false)
 
 // Draw colors to canvas
 function drawCanvas() {
@@ -93,6 +108,53 @@ const onInput = (event: Event) => {
 	const value = Number((event.target as HTMLInputElement).value)
 	emit('update:modelValue', value)
 }
+
+let stopWatchDragging: () => void = () => undefined
+let isDragging = ref(false)
+
+function onPointerDown(event: PointerEvent) {
+	const target = event.target as HTMLInputElement
+
+	target.setPointerCapture(event.pointerId)
+
+	isDragging.value = true
+
+	stopWatchDragging = useEventListener(target, 'pointermove', onPointerDrag)
+}
+
+function onPointerUp() {
+	if (!isDragging.value) return
+
+	isDragging.value = false
+
+	stopWatchDragging()
+}
+
+// Cleanup on unmount
+onUnmounted(() => {
+	stopWatchDragging()
+})
+
+function onPointerDrag(event: PointerEvent) {
+	if (!isDragging.value) return
+
+	// Prevent default scrolling behavior
+	event.preventDefault()
+
+	const width = sliderWidth.value - sliderHeight.value
+	const delta = (event.movementX / width) * (props.max - props.min)
+
+	emit(
+		'update:modelValue',
+		scalar.clamp(props.modelValue + delta, props.min, props.max)
+	)
+}
+
+const isScrollLocked = useScrollLock(window)
+
+watchEffect(() => {
+	isScrollLocked.value = isDragging.value
+})
 </script>
 
 <style lang="stylus" scoped>
@@ -100,6 +162,7 @@ const onInput = (event: Event) => {
 	position relative
 	width 100%
 	height var(--input-height, 40px)
+	display flex
 
 .canvas
 	position absolute
@@ -108,9 +171,21 @@ const onInput = (event: Event) => {
 	width 100%
 	height 100%
 	border-radius 999px
-	background red
+
+.label
+	width 5.5em
+	font-size 1.2rem
+	line-height var(--input-height)
+
+	&::first-letter
+		font-weight bold
+		font-size 1.2em
 
 .slider
+	position relative
+	flex-grow 1
+
+.input
 	--input-border-width 3px
 	position relative
 	z-index 10
@@ -120,27 +195,22 @@ const onInput = (event: Event) => {
 	appearance none
 	background transparent
 	outline none
-	pointer-events auto
+	pointer-events none
 
 	&::-webkit-slider-thumb
 		-webkit-appearance none
 		appearance none
-		height var(--input-height, 40px)
-		width var(--input-height, 40px)
-		background-color var(--color-bg, white)
-		border var(--input-border-width) solid currentColor
+		height var(--input-height)
+		width var(--input-height)
+		background-color currentColor
+		border var(--input-border-width) solid var(--color-text)
+		outline var(--input-border-width) solid var(--color-bg)
 		border-radius 50%
 		cursor pointer
 		position relative
 		box-shadow none
+		transition all 0.1s ease-in-out
 
-	&::-moz-range-thumb
-		appearance none
-		height var(--input-height, 40px)
-		width var(--input-height, 40px)
-		background-color var(--color-bg, white)
-		border var(--input-border-width) solid currentColor
-		border-radius 50%
-		cursor pointer
-		box-shadow none
+		.hovering &
+			scale 1.2
 </style>

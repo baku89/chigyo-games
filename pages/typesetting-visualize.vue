@@ -19,17 +19,17 @@
 			<path class="axis" :d="axisX" />
 			<path class="axis" :d="axisY" />
 			<!-- X axis label -->
-			<text x="0" y="500" class="axis-label" text-anchor="start">ち〜ぎ</text>
+			<text x="0" y="490" class="axis-label" text-anchor="start">ち〜ぎ</text>
 			<!-- Y axis label -->
 			<text
 				x="0"
-				y="500"
+				y="490"
 				class="axis-label"
 				text-anchor="start"
 				:transform-origin="transform([0, 0])"
 				transform="rotate(-90)"
 			>
-				ぎ〜よ
+				ぎ〜ょ
 			</text>
 			<!-- Data -->
 			<path class="point-cloud" :d="pointCloudPath" />
@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import {useEventListener, useInterval} from '@vueuse/core'
-import {scalar, vec2} from 'linearly'
+import {vec2} from 'linearly'
 import {useGameAPI} from '~/composables/useGameAPI'
 
 const {getGameRecords} = useGameAPI()

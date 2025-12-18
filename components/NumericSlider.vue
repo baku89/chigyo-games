@@ -9,7 +9,6 @@
 		@pointercancel="onPointerUp"
 		@pointerout="onPointerUp"
 		@mouseleave="onPointerUp"
-		ref="$root"
 	>
 		<label class="label">{{ label }}</label>
 		<input
@@ -41,7 +40,6 @@ const onInput = (event: Event) => {
 	modelValue.value = Number((event.target as HTMLInputElement).value)
 }
 
-const $root = ref<HTMLDivElement>()
 const $input = ref<HTMLInputElement>()
 
 const {width: sliderWidth, height: sliderHeight} = useElementSize($input)

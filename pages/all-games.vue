@@ -20,7 +20,7 @@
 
 		<h2>5. カラーピッカー</h2>
 
-		<iframe class="portrait" src="./color-picker" />
+		<iframe class="landscape" src="./color-picker" />
 	</main>
 </template>
 
@@ -59,4 +59,7 @@ iframe
 
 	&.square
 		aspect-ratio 1 / 1
+
+	&.landscape
+		aspect-ratio 16 / 9
 </style>

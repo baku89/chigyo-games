@@ -8,7 +8,7 @@ export function hsv2rgb(hue: number, saturation: number, value: number): RGB {
 	return chromajs.hsv(hue, saturation, value).rgb()
 }
 
-export function rgb2hsb(
+export function rgb2hsv(
 	red: number,
 	green: number,
 	blue: number,
@@ -24,9 +24,30 @@ export function hsv2oklch(
 	saturation: number,
 	value: number
 ): OkLCh {
-	return chromajs.hsv(hue, saturation, value).oklch()
+	const [l, c, h] = chromajs.hsv(hue, saturation, value).oklch()
+
+	const [, , h2] = chromajs
+		.hsv(hue, Math.max(0.001, saturation), Math.max(0.001, value))
+		.oklch()
+
+	if (l === 0 || c === 0) {
+		return [l, c, h2]
+	}
+
+	return [l, c, h]
 }
 
-export function oklch2hsv(lightness: number, chroma: number, hue: number): HSV {
-	return chromajs.oklch(lightness, chroma, hue).hsv()
+export function oklch2hsv(
+	lightness: number,
+	chroma: number,
+	hue: number,
+	previousHue?: number
+): HSV {
+	const [h, s, v] = chromajs.oklch(lightness, chroma, hue).hsv()
+
+	return [chroma === 0 || lightness === 0 ? (previousHue ?? 0) : h, s, v]
+}
+
+export function oklch2rgb(lightness: number, chroma: number, hue: number): RGB {
+	return chromajs.oklch(lightness, chroma, hue).rgb()
 }
